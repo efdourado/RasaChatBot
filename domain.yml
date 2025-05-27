@@ -13,6 +13,8 @@ intents:
   - negar
   - solicitar_info_clinica
   - solicitar_ajuda
+  - goodbye
+  - bot_challenge
 
 entities:
   - especialidade
@@ -76,15 +78,15 @@ responses:
   utter_despedida:
     - text: "Tchau!"
     - text: "Até logo!"
-  utter_agradecimento:
-    - text: "De nada!"
-    - text: "Disponha!"
+
   utter_perguntar_como_ajudar:
     - text: "Como posso te ajudar?"
   utter_perguntar_especialidade:
     - text: "Claro! Para qual especialidade você gostaria de agendar?"
-  utter_perguntar_data:
+
+  utter_ask_data_preferida:
     - text: "Entendido. Para qual data você gostaria de agendar a consulta de {especialidade}?"
+
   utter_confirmar_detalhes_agendamento:
     - text: "Ok, confirmando: agendamento para {especialidade} no dia {data_preferida} às {hora_preferida}. Correto?"
   utter_agendamento_realizado:
@@ -95,12 +97,33 @@ responses:
     - text: "Não se preocupe, estou aqui para ajudar. O que você gostaria de fazer?"
   utter_default:
     - text: "Desculpe, não entendi. Poderia reformular?"
+  utter_goodbye:
+    - text: "Até mais!"
+    - text: "Tchau, se cuida!"
+  utter_iamabot:
+    - text: "Eu sou um assistente virtual programado para te ajudar."
+    - text: "Sou um bot, criado com Rasa."
 
 actions:
   - action_buscar_especialidades
   - action_verificar_disponibilidade
   - action_agendar_consulta
   - action_buscar_exames_por_especialidade
+  - action_buscar_info_clinica
+
+  - utter_saudacao
+  - utter_perguntar_como_ajudar
+  - utter_perguntar_especialidade
+
+  - utter_ask_data_preferida
+  - utter_confirmar_detalhes_agendamento
+  - utter_agendamento_realizado
+  - utter_de_nada
+  - utter_despedida
+  - utter_solicitar_ajuda
+
+  - utter_goodbye
+  - utter_iamabot
 
 forms:
   formulario_agendamento:
