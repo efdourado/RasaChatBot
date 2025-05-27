@@ -1,91 +1,100 @@
 version: "3.1"
 
 nlu:
-- intent: greet
+- intent: saudacao
   examples: |
-    - hey
-    - hello
-    - hi
-    - hello there
-    - good morning
-    - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
+    - Olá
+    - Oi
+    - Bom dia
+    - Boa tarde
+    - E aí?
 
-- intent: goodbye
+- intent: despedida
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+    - Tchau
+    - Até mais
+    - Adeus
+    - Até a próxima
 
-- intent: affirm
+- intent: agradecimento
   examples: |
-    - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
-    - correct
+    - Obrigado
+    - Valeu
+    - Muito obrigado
+    - Agradecido
 
-- intent: deny
+- intent: solicitar_agendamento
   examples: |
-    - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
+    - Quero marcar uma consulta
+    - Preciso de um médico
+    - Gostaria de agendar um horário
+    - Preciso agendar uma consulta
+    - Marcar consulta
+    - Agendar consulta
+    - Como faço para agendar?
 
-- intent: mood_great
+- intent: informar_especialidade
   examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
+    - [Cardiologia](especialidade) #
+    - Gostaria de um [dermatologista](especialidade)
+    - Pode ser [clínico geral](especialidade)?
+    - Preciso de um [ortopedista](especialidade)
+    - Quero agendar com [pediatria](especialidade)
+    - Para a especialidade de [ginecologia](especialidade)
 
-- intent: mood_unhappy
+- intent: informar_exame
   examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
+    - [Raio-X do tórax](tipo_exame)
+    - Preciso fazer um [eletrocardiograma](tipo_exame)
+    - Quero marcar uma [ressonância magnética](tipo_exame)
+    - Um exame de [ultrassonografia](tipo_exame)
 
-- intent: bot_challenge
+- intent: informar_data_preferida
   examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - [Para amanhã](data) #
+    - [Na próxima semana](data)
+    - No dia [15](data)
+    - Pode ser dia [25/12/2023](data)
+    - Quero para [hoje](data) mesmo
+    - Para o dia [primeiro de junho](data)
+    - Data [10 de maio](data)
+
+- intent: informar_hora_preferida
+  examples: |
+    - [Pela manhã](hora) #
+    - [Às 14h](hora)
+    - Pode ser às [10:00](hora)?
+    - No [final da tarde](hora)
+    - Queria um horário para as [3 da tarde](hora)
+
+- intent: afirmar
+  examples: |
+    - Sim
+    - Correto
+    - Isso mesmo
+    - Confirmo
+    - Pode ser
+    - Afirmativo
+
+- intent: negar
+  examples: |
+    - Não
+    - Errado
+    - De jeito nenhum
+    - Negativo
+    - Quero cancelar
+
+- intent: solicitar_info_clinica
+  examples: |
+    - Qual o endereço?
+    - Quais convênios vocês aceitam?
+    - Onde fica a clínica?
+    - Qual o telefone de contato?
+
+- intent: solicitar_ajuda
+  examples: |
+    - Ajuda
+    - Não entendi
+    - Socorro
+    - Me ajuda aqui
+    - Como funciona?

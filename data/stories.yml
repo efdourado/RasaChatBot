@@ -1,30 +1,65 @@
 version: "3.1"
 
 stories:
-
-- story: happy path
+- story: Agendamento Caminho Feliz Completo
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - intent: saudacao
+  - action: utter_saudacao
+  - action: utter_perguntar_como_ajudar
+  - intent: solicitar_agendamento
+  - action: utter_perguntar_especialidade
+  - intent: informar_especialidade
+    entities:
+    - especialidade: "Cardiologia"
+  - slot_was_set:
+    - especialidade: "Cardiologia"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
 
-- story: sad path 1
+- story: Formulario Agendamento Interacao
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_data_preferida
+    entities:
+    - data: "amanhã"
+  - slot_was_set:
+    - data_preferida: "amanhã"
+  - active_loop: formulario_agendamento
+  - intent: informar_hora_preferida
+    entities:
+    - hora: "10:00"
+  - slot_was_set:
+    - hora_preferida: "10:00"
+  - active_loop: null
+  - action: utter_confirmar_detalhes_agendamento
+  - intent: afirmar
+  - action: action_agendar_consulta
+  - action: utter_agendamento_realizado
+  - intent: agradecimento
+  - action: utter_de_nada
+  - intent: despedida
+  - action: utter_despedida
 
-- story: sad path 2
+- story: Agendamento Caminho Feliz com especialidade ja informada
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+  - intent: saudacao
+  - action: utter_saudacao
+  - action: utter_perguntar_como_ajudar
+  - intent: informar_especialidade
+    entities:
+    - especialidade: "Dermatologia"
+  - slot_was_set:
+    - especialidade: "Dermatologia"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+
+- story: Usuário pede ajuda
+  steps:
+  - intent: solicitar_ajuda
+  - action: utter_solicitar_ajuda
+
+- story: Usuário quer informações da clínica
+  steps:
+  - intent: solicitar_info_clinica
+  - action: action_buscar_info_clinica

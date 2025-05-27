@@ -1,33 +1,113 @@
 version: "3.1"
 
 intents:
-  - greet
-  - goodbye
-  - affirm
-  - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+  - saudacao
+  - despedida
+  - agradecimento
+  - solicitar_agendamento
+  - informar_especialidade
+  - informar_exame
+  - informar_data_preferida
+  - informar_hora_preferida
+  - afirmar
+  - negar
+  - solicitar_info_clinica
+  - solicitar_ajuda
+
+entities:
+  - especialidade
+  - tipo_exame
+  - data
+  - hora
+  - nome_paciente
+  - nome_medico
+
+slots:
+  especialidade:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: especialidade
+  tipo_exame:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: tipo_exame
+  data_preferida:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: data
+  hora_preferida:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: hora
+  nome_paciente:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: nome_paciente
+  especialidades_disponiveis:
+    type: list
+    influence_conversation: false
+    mappings:
+      - type: custom
+  horarios_disponiveis:
+    type: list
+    influence_conversation: false
+    mappings:
+      - type: custom
+  status_disponibilidade:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: custom
 
 responses:
-  utter_greet:
-  - text: "Hey! How are you?"
+  utter_saudacao:
+    - text: "Olá! Como posso te ajudar hoje?"
+    - text: "Oi! Em que posso ser útil?"
+  utter_despedida:
+    - text: "Tchau!"
+    - text: "Até logo!"
+  utter_agradecimento:
+    - text: "De nada!"
+    - text: "Disponha!"
+  utter_perguntar_como_ajudar:
+    - text: "Como posso te ajudar?"
+  utter_perguntar_especialidade:
+    - text: "Claro! Para qual especialidade você gostaria de agendar?"
+  utter_perguntar_data:
+    - text: "Entendido. Para qual data você gostaria de agendar a consulta de {especialidade}?"
+  utter_confirmar_detalhes_agendamento:
+    - text: "Ok, confirmando: agendamento para {especialidade} no dia {data_preferida} às {hora_preferida}. Correto?"
+  utter_agendamento_realizado:
+    - text: "Seu agendamento foi realizado com sucesso!"
+  utter_de_nada:
+    - text: "De nada! 😊"
+  utter_solicitar_ajuda:
+    - text: "Não se preocupe, estou aqui para ajudar. O que você gostaria de fazer?"
+  utter_default:
+    - text: "Desculpe, não entendi. Poderia reformular?"
 
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
+actions:
+  - action_buscar_especialidades
+  - action_verificar_disponibilidade
+  - action_agendar_consulta
+  - action_buscar_exames_por_especialidade
 
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
-
-  utter_goodbye:
-  - text: "Bye"
-
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+forms:
+  formulario_agendamento:
+    required_slots:
+      - especialidade
+      - data_preferida
+      - hora_preferida
 
 session_config:
   session_expiration_time: 60
