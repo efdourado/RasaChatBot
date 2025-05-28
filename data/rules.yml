@@ -2,12 +2,41 @@ version: "3.1"
 
 rules:
 
-- rule: Say goodbye anytime the user says goodbye
+- rule: Dizer tchau quando usuário se despede
   steps:
-  - intent: goodbye
-  - action: utter_goodbye
+  - intent: despedida
+  - action: utter_despedida
 
-- rule: Say 'I am a bot' anytime the user challenges
+- rule: Responder ao desafio de ser um bot
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Agradecer quando usuário agradece
+  steps:
+  - intent: agradecimento
+  - action: utter_agradecimento
+
+- rule: Oferecer ajuda quando solicitado
+  condition:
+  - active_loop: null
+  steps:
+  - intent: solicitar_ajuda
+  - action: utter_solicitar_ajuda
+
+- rule: Listar especialidades quando solicitado diretamente (fora de um fluxo)
+  condition:
+  - active_loop: null
+  steps:
+  - intent: solicitar_especialidades
+  - action: action_buscar_especialidades
+
+- rule: Ativar formulário de agendamento se especialidade for informada com intenção de agendar
+  condition:
+  - active_loop: null
+  steps:
+  - intent: informar_especialidade
+  - slot_was_set:
+    - especialidade: null
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento

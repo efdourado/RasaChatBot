@@ -1,91 +1,106 @@
-#### This file contains tests to evaluate that your bot behaves as expected.
-#### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
+version: "3.1"
 
 stories:
-- story: happy path 1
+- story: Teste Caminho Feliz Agendamento Completo
   steps:
-  - user: |
-      hello there!
-    intent: greet
-  - action: utter_greet
-  - user: |
-      amazing
-    intent: mood_great
-  - action: utter_happy
+  - user: "Olá"
+    intent: saudacao
+  - action: utter_saudacao
+  - user: "Quero marcar uma consulta"
+    intent: solicitar_agendamento
+  - action: utter_perguntar_especialidade
+  - user: "para cardiologia"
+    intent: informar_especialidade
+    entities:
+      - especialidade: "Cardiologia"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - user: "Meu nome é Teste Feliz"
+    intent: informar_nome_paciente
+    entities:
+      - nome_paciente: "Teste Feliz"
+  - active_loop: formulario_agendamento
+  - user: "para amanhã"
+    intent: informar_data_preferida
+    entities:
+      - data: "amanhã"
+  - active_loop: formulario_agendamento
+  - user: "de manhã"
+    intent: informar_hora_preferida
+    entities:
+      - hora: "manhã"
+  - active_loop: null
+  - action: action_verificar_disponibilidade
+  - action: utter_mostrar_horarios_disponiveis
+  - user: "quero o das 09:30"
+    intent: informar_horario_escolhido
+    entities:
+      - hora: "09:30"
+  - action: utter_confirmar_agendamento_final
+  - user: "sim"
+    intent: afirmar
+  - action: action_agendar_consulta
+  - action: utter_agradecimento
+  - user: "obrigado"
+    intent: agradecimento
+  - action: utter_despedida
+  - user: "tchau"
+    intent: despedida
 
-- story: happy path 2
+- story: Teste Agendamento - Nenhum horário disponível
   steps:
-  - user: |
-      hello there!
-    intent: greet
-  - action: utter_greet
-  - user: |
-      amazing
-    intent: mood_great
-  - action: utter_happy
-  - user: |
-      bye-bye!
-    intent: goodbye
-  - action: utter_goodbye
+  - user: "Oi"
+    intent: saudacao
+  - action: utter_saudacao
+  - user: "Gostaria de agendar com Pediatria"
+    intent: informar_especialidade
+    entities:
+      - especialidade: "Pediatria"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - user: "Paciente Teste Sem Sorte"
+    intent: informar_nome_paciente
+    entities:
+      - nome_paciente: "Teste Sem Sorte"
+  - active_loop: formulario_agendamento
+  - user: "hoje"
+    intent: informar_data_preferida
+    entities:
+      - data: "hoje"
+  - active_loop: formulario_agendamento
+  - user: "quero as sete da noite"
+    intent: informar_hora_preferida
+    entities:
+      - hora: "sete da noite"
+  - active_loop: null
+  - action: action_verificar_disponibilidade
+  - action: utter_nenhum_horario_disponivel
+  - user: "não, obrigado"
+    intent: negar
+  - action: utter_ok_sem_nova_tentativa
 
-- story: sad path 1
+- story: Teste Listar Especialidades
   steps:
-  - user: |
-      hello
-    intent: greet
-  - action: utter_greet
-  - user: |
-      not good
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      yes
-    intent: affirm
-  - action: utter_happy
+  - user: "Quais especialidades vocês atendem?"
+    intent: solicitar_especialidades
+  - action: action_buscar_especialidades
 
-- story: sad path 2
+- story: Teste Listar Exames para Especialidade
   steps:
-  - user: |
-      hello
-    intent: greet
-  - action: utter_greet
-  - user: |
-      not good
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      not really
-    intent: deny
-  - action: utter_goodbye
+  - user: "quais exames tem para cardiologia?"
+    intent: solicitar_exames
+    entities:
+      - especialidade: "Cardiologia"
+  - action: action_buscar_exames_por_especialidade
 
-- story: sad path 3
+- story: Teste Informações da Clínica
   steps:
-  - user: |
-      hi
-    intent: greet
-  - action: utter_greet
-  - user: |
-      very terrible
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      no
-    intent: deny
-  - action: utter_goodbye
+  - user: "qual o endereço de vocês?"
+    intent: solicitar_info_clinica
+  - action: action_buscar_info_clinica
 
-- story: say goodbye
+- story: Bot Challenge Test
   steps:
-  - user: |
-      bye-bye!
-    intent: goodbye
-  - action: utter_goodbye
-
-- story: bot challenge
-  steps:
-  - user: |
-      are you a bot?
+  - user: "você é um humano?"
     intent: bot_challenge
   - action: utter_iamabot

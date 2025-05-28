@@ -8,6 +8,8 @@ nlu:
     - Bom dia
     - Boa tarde
     - E aí?
+    - Começar
+    - Olá, tudo bem?
 
 - intent: despedida
   examples: |
@@ -15,6 +17,8 @@ nlu:
     - Até mais
     - Adeus
     - Até a próxima
+    - Encerrar
+    - Tchau, obrigado
 
 - intent: agradecimento
   examples: |
@@ -22,6 +26,8 @@ nlu:
     - Valeu
     - Muito obrigado
     - Agradecido
+    - Grato
+    - Obrigada
 
 - intent: solicitar_agendamento
   examples: |
@@ -32,15 +38,19 @@ nlu:
     - Marcar consulta
     - Agendar consulta
     - Como faço para agendar?
+    - Agendar um horário
+    - Consulta médica
 
 - intent: informar_especialidade
   examples: |
-    - [Cardiologia](especialidade) #
+    - [Cardiologia](especialidade)
     - Gostaria de um [dermatologista](especialidade)
     - Pode ser [clínico geral](especialidade)?
     - Preciso de um [ortopedista](especialidade)
     - Quero agendar com [pediatria](especialidade)
-    - Para a especialidade de [ginecologia](especialidade)
+    - Para a especialidade de [Ginecologia](especialidade)
+    - Eu quero [Cardiologia](especialidade)
+    - A especialidade é [Dermatologia](especialidade)
 
 - intent: informar_exame
   examples: |
@@ -49,23 +59,55 @@ nlu:
     - Quero marcar uma [ressonância magnética](tipo_exame)
     - Um exame de [ultrassonografia](tipo_exame)
 
+- intent: solicitar_exames
+  examples: |
+    - Quais exames tem para [cardiologia](especialidade)?
+    - Que tipo de exame o [ortopedista](especialidade) faz?
+    - Ver exames de [dermatologia](especialidade)
+    - Quais exames estão disponíveis?
+    - Exames
+
 - intent: informar_data_preferida
   examples: |
-    - [Para amanhã](data) #
+    - [Para amanhã](data)
     - [Na próxima semana](data)
     - No dia [15](data)
-    - Pode ser dia [25/12/2023](data)
+    - Pode ser dia [25/12](data)
+    - Dia [25 de dezembro](data)
     - Quero para [hoje](data) mesmo
     - Para o dia [primeiro de junho](data)
     - Data [10 de maio](data)
+    - [Amanhã](data)
+    - [Hoje](data)
 
 - intent: informar_hora_preferida
   examples: |
-    - [Pela manhã](hora) #
+    - [Pela manhã](hora)
     - [Às 14h](hora)
     - Pode ser às [10:00](hora)?
     - No [final da tarde](hora)
     - Queria um horário para as [3 da tarde](hora)
+    - [Manhã](hora)
+    - [Tarde](hora)
+    - [15:30](hora)
+    - Por volta das [onze](hora)
+
+- intent: informar_nome_paciente
+  examples: |
+    - Meu nome é [João Silva](nome_paciente)
+    - O paciente é [Maria Oliveira](nome_paciente)
+    - [Carlos Souza](nome_paciente)
+    - Em nome de [Ana Pereira](nome_paciente)
+    - Pode marcar para [Pedro Santos](nome_paciente)
+
+- intent: informar_horario_escolhido
+  examples: |
+    - Pode ser às [09:00](hora)
+    - Quero o de [10:30](hora)
+    - [14:00](hora) está ótimo
+    - Prefiro [15:30](hora)
+    - O horário das [16:00](hora)
+    - [11:00](hora)
 
 - intent: afirmar
   examples: |
@@ -75,6 +117,9 @@ nlu:
     - Confirmo
     - Pode ser
     - Afirmativo
+    - Isso
+    - Aham
+    - Claro
 
 - intent: negar
   examples: |
@@ -83,6 +128,8 @@ nlu:
     - De jeito nenhum
     - Negativo
     - Quero cancelar
+    - Não confirmo
+    - Não quero
 
 - intent: solicitar_info_clinica
   examples: |
@@ -90,6 +137,8 @@ nlu:
     - Quais convênios vocês aceitam?
     - Onde fica a clínica?
     - Qual o telefone de contato?
+    - Informações da clínica
+    - Sobre a clínica
 
 - intent: solicitar_ajuda
   examples: |
@@ -98,3 +147,20 @@ nlu:
     - Socorro
     - Me ajuda aqui
     - Como funciona?
+    - O que você faz?
+    - Comandos
+
+- intent: solicitar_especialidades
+  examples: |
+    - Quais especialidades vocês têm?
+    - Ver especialidades
+    - Quais são as especialidades da clínica?
+    - Listar especialidades
+    - Que médicos tem aí?
+
+- intent: bot_challenge
+  examples: |
+    - você é um robô?
+    - você é um bot?
+    - quem é você?
+    - qual seu nome?
