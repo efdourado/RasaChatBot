@@ -39,6 +39,18 @@ slots:
     mappings:
       - type: from_entity
         entity: tipo_exame
+
+        
+
+  data:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: data
+
+
+
   data_preferida:
     type: text
     influence_conversation: true
