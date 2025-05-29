@@ -23,9 +23,9 @@ stories:
   - active_loop: formulario_agendamento 
   - intent: informar_nome_paciente
     entities:
-    - nome_paciente: "João Testador"
+    - nome_paciente: "Eduardo Testador"
   - slot_was_set:
-    - nome_paciente: "João Testador"
+    - nome_paciente: "Eduardo Testador"
   - active_loop: formulario_agendamento
   - intent: informar_data_preferida
     entities:
