@@ -1,0 +1,32 @@
+{
+  "name": "sup",
+  "version": "1.0.0",
+  "description": "Bem-vindo ao Chatbot de Agendamento da Clínica Super Saudável!\n Este é um assistente virtual desenvolvido com Rasa para ajudar os usuários a marcar consultas, obter informações sobre especialidades médicas, exames e detalhes da clínica.",
+  "main": "dist/database.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/database.ts",
+    "seed": "ts-node src/seed.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:reset": "prisma migrate reset",
+    "db:seed": "npm run seed",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["clinic", "appointment", "chatbot", "prisma", "database"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "prisma": "^6.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

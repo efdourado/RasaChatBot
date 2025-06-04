@@ -2,6 +2,25 @@
 
 Bem-vindo ao Chatbot de Agendamento da Clínica Super Saudável! Este é um assistente virtual desenvolvido com Rasa para ajudar os usuários a marcar consultas, obter informações sobre especialidades médicas, exames e detalhes da clínica.
 
+## 🗄️ Novidade: Sistema de Banco de Dados
+
+Este projeto agora inclui um **sistema de banco de dados completo** usando Prisma ORM com SQLite. O banco de dados está pronto para integração com o chatbot e inclui:
+
+- ✅ **Modelos de dados** para Pacientes, Médicos, Especialidades e Agendamentos
+- ✅ **Base de dados funcional** com dados de exemplo
+- ✅ **API TypeScript** para operações CRUD
+- ✅ **Scripts de gerenciamento** para seed, migração e reset
+- ✅ **Interface gráfica** com Prisma Studio
+
+📖 **Para mais detalhes sobre o banco de dados, consulte: [DATABASE_README.md](DATABASE_README.md)**
+
+### Scripts do Banco de Dados:
+```bash
+npm run seed              # Popula o banco com dados de exemplo
+npm run prisma:studio     # Abre interface gráfica do banco
+ts-node src/example.ts    # Executa exemplos de consultas
+```
+
 ## ✨ Funcionalidades Principais
 
 O chatbot é capaz de:
@@ -23,29 +42,40 @@ O chatbot é capaz de:
 
 ## 🚀 Como Executar o Projeto
 
+### Configuração Inicial (Primeira vez):
+
 1.  **Pré-requisitos:**
     * Python 3.x
+    * Node.js e npm
     * Rasa Open Source (`pip install rasa`)
 
-2.  **Treinar o Modelo Rasa:**
+2.  **Configurar o Banco de Dados:**
+    ```bash
+    npm install
+    npm run seed
+    ```
+
+### Execução do Chatbot:
+
+1.  **Treinar o Modelo Rasa:**
     Se você fez alterações nos arquivos de dados (`data/`), configuração (`config.yml`) ou domínio (`domain.yml`), treine um novo modelo:
     ```bash
     rasa train
     ```
 
-3.  **Iniciar o Servidor de Ações:**
+2.  **Iniciar o Servidor de Ações:**
     Em um terminal, navegue até a raiz do projeto e execute:
     ```bash
     rasa run actions
     ```
 
-4.  **Iniciar o Servidor Rasa:**
+3.  **Iniciar o Servidor Rasa:**
     Em outro terminal, navegue até a raiz do projeto e execute:
     ```bash
     rasa run --enable-api --cors "*"
     ```
 
-5.  **Interagir com o Chatbot:**
+4.  **Interagir com o Chatbot:**
     * Abra o arquivo `frontend/index.html` em seu navegador web.
     * Ou, para interagir via linha de comando (certifique-se de que o servidor de ações está rodando):
         ```bash
@@ -68,24 +98,31 @@ Você pode iniciar a conversa com um simples "Olá". Aqui estão alguns exemplos
 
 ## ⚠️ Limitações Atuais
 
-* **Dados Mocados:** As especialidades, exames e, crucialmente, os horários disponíveis são fixos no código (`actions/actions.py`) e não vêm de um banco de dados real.
-* **Agendamento Simulado:** O processo de agendamento não salva a consulta em um sistema persistente; ele apenas simula o sucesso e gera um ID aleatório.
-* **Compreensão de Linguagem Natural (NLU):** A capacidade de entender variações de frases é limitada aos exemplos fornecidos no arquivo `data/nlu.yml`. Frases muito diferentes podem não ser compreendidas corretamente.
-* **Informações da Clínica:** As informações como endereço e telefone são placeholders.
-* **Tratamento de Datas:** A lógica de disponibilidade de horários no `actions.py` é simplificada e focada em "hoje" e "amanhã" para os dados mocados. Outras especificações de data podem não encontrar correspondência nos horários mocados.
-* **Sem Gerenciamento de Usuários:** Não há autenticação ou personalização baseada no usuário.
-* **Sem Cancelamento/Remarcação:** O bot atualmente não suporta cancelar ou remarcar consultas.
+* **Integração Pendente:** O banco de dados está configurado mas ainda não está integrado com as ações do Rasa (próximo passo!)
+* **Dados Mocados no Bot:** As especialidades, exames e horários ainda vêm do código (`actions/actions.py`) até a integração ser completada
+* **Agendamento Simulado:** O processo de agendamento não salva ainda no banco de dados real
+* **Compreensão de Linguagem Natural (NLU):** A capacidade de entender variações de frases é limitada aos exemplos fornecidos no arquivo `data/nlu.yml`
+* **Tratamento de Datas:** A lógica de disponibilidade de horários é simplificada
+* **Sem Gerenciamento de Usuários:** Não há autenticação ou personalização baseada no usuário
+* **Sem Cancelamento/Remarcação:** O bot atualmente não suporta cancelar ou remarcar consultas
+
+## 💡 Próximos Passos
+
+* **🔗 Integrar Banco com Rasa:** Conectar as ações do Rasa com o banco de dados Prisma
+* **📊 Dados Dinâmicos:** Puxar especialidades e médicos do banco de dados em tempo real
+* **💾 Salvar Agendamentos:** Persistir consultas no banco de dados
+* **🔍 Busca de Disponibilidade:** Implementar verificação real de horários disponíveis
+* **👤 Gestão de Pacientes:** Criar e gerenciar perfis de pacientes
 
 ## 💡 Possíveis Melhorias Futuras
 
-* **Integração com Banco de Dados Real:** Conectar o chatbot a um sistema de agendamento real para verificar disponibilidade e salvar consultas.
-* **Expandir NLU:** Adicionar mais exemplos de treinamento para melhorar a compreensão de diferentes formas de perguntar a mesma coisa.
-* **Melhorar Tratamento de Datas e Horas:** Implementar uma lógica mais robusta para lidar com diversas formas de especificar datas e períodos.
-* **Funcionalidade de Cancelamento/Remarcação:** Permitir que os usuários gerenciem seus agendamentos.
-* **Autenticação de Usuário:** Implementar um sistema de login para carregar dados do paciente e histórico.
-* **Informações Dinâmicas da Clínica:** Puxar informações da clínica (endereço, contato, convênios) de uma fonte atualizável.
-* **Fluxos de Conversa Mais Robustos:** Melhorar o tratamento de erros e caminhos alternativos na conversa.
-* **Internacionalização:** Suporte a múltiplos idiomas.
+* **Expandir NLU:** Adicionar mais exemplos de treinamento para melhorar a compreensão
+* **Melhorar Tratamento de Datas e Horas:** Implementar uma lógica mais robusta para datas
+* **Funcionalidade de Cancelamento/Remarcação:** Permitir que os usuários gerenciem seus agendamentos
+* **Autenticação de Usuário:** Implementar um sistema de login
+* **Informações Dinâmicas da Clínica:** Puxar informações da clínica de uma fonte atualizável
+* **Fluxos de Conversa Mais Robustos:** Melhorar o tratamento de erros
+* **Internacionalização:** Suporte a múltiplos idiomas
 
 ---
 
