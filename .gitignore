@@ -1,3 +1,4 @@
 echo ".venv/" > .gitignore
 echo ".rasa/" >> .gitignore
 echo "__pycache__/" >> .gitignore
+/generated/prisma
