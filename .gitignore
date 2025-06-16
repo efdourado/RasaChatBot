@@ -1,4 +1,9 @@
-echo ".venv/" > .gitignore
-echo ".rasa/" >> .gitignore
-echo "__pycache__/" >> .gitignore
-/generated/prisma
+# Ambientes virtuais e caches
+.venv/
+.rasa/
+
+# Node
+node_modules/
+
+# Arquivos sensíveis e desnecessários
+.env

@@ -3,6 +3,11 @@ from typing import Any, Text, Dict, List
 import random
 import string
 
+import os
+import google.generativeai as genai
+
+import json
+
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet, AllSlotsReset
@@ -279,3 +284,106 @@ class ActionResetarSlotsAgendamento(Action):
             SlotSet("id_agendamento", None),
             SlotSet("status_agendamento", None)
         ]
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+
+class ActionHandleGeneralQuestion(Action):
+    """
+    Esta ação é acionada quando o chatbot não entende a intenção do usuário.
+    Ela usa a API do Gemini para gerar uma resposta para perguntas abertas.
+    """
+    def name(self) -> Text:
+        return "action_handle_general_question"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        if not GEMINI_API_KEY:
+            logger.error("API Key do Gemini não foi configurada.")
+            dispatcher.utter_message(text="Desculpe, meu cérebro de IA avançada está temporariamente offline. Não consigo responder perguntas gerais agora.")
+            return []
+
+        
+        user_question = tracker.latest_message.get('text')
+        logger.info(f"Enviando pergunta para o Gemini: '{user_question}'")
+
+        # Cria o modelo GenerativeModel
+        model = genai.GenerativeModel('gemini-pro')
+
+        # Constrói um prompt melhor para dar contexto ao LLM
+        prompt = f"""
+        Você é um assistente virtual de uma clínica chamada 'Clínica Super Saudável'.
+        Sua principal função é agendar consultas. No entanto, um usuário fez uma pergunta geral.
+        Responda à seguinte pergunta de forma útil e concisa.
+        IMPORTANTE: NÃO forneça conselhos médicos. Se a pergunta parecer pedir um diagnóstico ou tratamento, 
+        gentilmente instrua o usuário a marcar uma consulta com um de nossos especialistas para obter ajuda profissional.
+
+        Pergunta do usuário: "{user_question}"
+        """
+
+        try:
+            # Gera a resposta com o Gemini
+            response = model.generate_content(prompt)
+            
+            # Envia a resposta do Gemini para o usuário
+            dispatcher.utter_message(text=response.text)
+
+        except Exception as e:
+            logger.error(f"Erro ao chamar a API do Gemini: {e}")
+            dispatcher.utter_message(text="Desculpe, tive um problema ao processar sua pergunta. Poderia tentar de novo?")
+
+        return []
+    
+class ActionExtractAppointmentInfo(Action):
+    """
+    Usa o Gemini para extrair entidades (nome, especialidade)
+    de uma forma mais robusta que o NLU tradicional.
+    """
+    def name(self) -> Text:
+        return "action_extract_appointment_info"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        user_message = tracker.latest_message.get('text')
+        model = genai.GenerativeModel('gemini-pro')
+
+        # Este prompt instrui o LLM a agir como um extrator de dados
+        # e a responder em um formato de máquina (JSON).
+        prompt = f"""
+        Analise a frase de um usuário que deseja marcar uma consulta.
+        Extraia o nome do paciente e a especialidade médica desejada.
+        Responda APENAS com um objeto JSON válido contendo as chaves 'nome_paciente' e 'especialidade'.
+        Se uma informação não for encontrada, use o valor null.
+
+        Frase do usuário: "{user_message}"
+
+        JSON:
+        """
+
+        try:
+            response = model.generate_content(prompt)
+            # O Gemini vai responder algo como: ```json\n{"nome_paciente": "João da Silva", "especialidade": "Cardiologia"}\n```
+            # Precisamos limpar e parsear essa resposta.
+            cleaned_response = response.text.strip().replace("```json", "").replace("```", "")
+            extracted_data = json.loads(cleaned_response)
+
+            logger.info(f"Dados extraídos pelo Gemini: {extracted_data}")
+
+            # Agora, preenchemos os slots do Rasa com a informação extraída pelo LLM
+            slots_to_set = []
+            if extracted_data.get("nome_paciente"):
+                slots_to_set.append(SlotSet("nome_paciente", extracted_data["nome_paciente"]))
+            if extracted_data.get("especialidade"):
+                slots_to_set.append(SlotSet("especialidade_desejada", extracted_data["especialidade"]))
+
+            return slots_to_set
+
+        except Exception as e:
+            logger.error(f"Erro ao extrair informações com o Gemini: {e}")
+            dispatcher.utter_message(text="Não consegui entender todos os detalhes. Pode me dizer seu nome e a especialidade que deseja?")
+            return []

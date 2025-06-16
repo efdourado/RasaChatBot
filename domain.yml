@@ -191,6 +191,8 @@ actions:
   - utter_info_clinica_placeholder
   - utter_perguntar_especialidade_para_exames
 
+  - action_handle_general_question
+
 forms:
   formulario_agendamento:
     required_slots:
