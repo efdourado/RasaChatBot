@@ -127,3 +127,28 @@ Você pode iniciar a conversa com um simples "Olá". Aqui estão alguns exemplos
 ---
 
 Divirta-se interagindo com o Chatbot da Clínica Super Saudável!
+
+
+
+
+---
+
+.env:
+
+- GEMINI_API_KEY=SUA_API_KEY_AQUI
+- DATABASE_URL=file:./dev.db
+
+---
+
+.gitignore:
+
+- .venv/
+- .rasa/
+
+- node_modules/
+
+- .env
+
+- models/*.tar.gz
+- dist/
+- prisma/dev.db

@@ -46,21 +46,21 @@ async function main() {
   const drSilva = await db.createDoctor({
     name: 'Dr. João Silva',
     email: 'joao.silva@supersaudavel.com',
-    phone: '(11) 99999-1111',
+    // phone: '(11) 99999-1111',
     specialtyId: cardiology.id
   });
 
   const drSantos = await db.createDoctor({
     name: 'Dra. Maria Santos',
     email: 'maria.santos@supersaudavel.com',
-    phone: '(11) 99999-2222',
+    // phone: '(11) 99999-2222',
     specialtyId: dermatology.id
   });
 
   const drOliveira = await db.createDoctor({
     name: 'Dr. Carlos Oliveira',
     email: 'carlos.oliveira@supersaudavel.com',
-    phone: '(11) 99999-3333',
+    // phone: '(11) 99999-3333',
     specialtyId: orthopedics.id
   });
 
@@ -84,22 +84,22 @@ async function main() {
   const patient1 = await db.createPatient({
     name: 'José da Silva',
     email: 'jose.silva@email.com',
-    phone: '(11) 88888-1111',
-    birthDate: new Date('1985-03-15')
+    // phone: '(11) 88888-1111',
+    // birthDate: new Date('1985-03-15')
   });
 
   const patient2 = await db.createPatient({
     name: 'Maria Oliveira',
     email: 'maria.oliveira@email.com',
-    phone: '(11) 88888-2222',
-    birthDate: new Date('1990-07-22')
+    // phone: '(11) 88888-2222',
+    // birthDate: new Date('1990-07-22')
   });
 
   const patient3 = await db.createPatient({
     name: 'Carlos Santos',
     email: 'carlos.santos@email.com',
-    phone: '(11) 88888-3333',
-    birthDate: new Date('1978-11-05')
+    // phone: '(11) 88888-3333',
+    // birthDate: new Date('1978-11-05')
   });
 
   console.log('✅ Patients created');

@@ -311,3 +311,18 @@ nlu:
     - Você é humano?
     - Falo com um programa?
     - Quem está aí?
+
+- intent: informar_doutor
+  examples: |
+    - Gostaria de agendar com o [Dr. João Silva](doctor_name)
+    - Pode ser com a [Dra. Maria Santos](doctor_name)
+    - O doutor [Carlos Oliveira](doctor_name)
+    - [Dr. João Silva]{"entity": "doctor_name", "value": "Dr. João Silva"}
+    - Quero o [Dr. Carlos Oliveira]{"entity": "doctor_name", "value": "Dr. Carlos Oliveira"}
+
+- intent: informar_email
+  examples: |
+    - meu email é [teste@exemplo.com](email)
+    - [joao.silva@email.com](email)
+    - pode anotar [maria.oliveira@email.com](email)
+    - o email é [carlos.santos@email.com](email)

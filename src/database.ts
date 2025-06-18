@@ -1,5 +1,4 @@
-import { PrismaClient } from '../generated/prisma';
-
+import { PrismaClient, Specialty, Doctor, Patient, Appointment } from '@prisma/client';
 // Initialize Prisma Client
 const prisma = new PrismaClient();
 
@@ -12,14 +11,20 @@ export class DatabaseService {
   }
 
   // Patient operations
-  async createPatient(data: {
-    name: string;
-    email: string;
-    phone?: string;
-    birthDate?: Date;
-  }) {
+  async createPatient(data: { email: string; name: string }) {
     return await this.prisma.patient.create({
-      data
+      data,
+      include: {
+        appointments: {
+          include: {
+            doctor: {
+              include: {
+                specialty: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -170,6 +175,26 @@ export class DatabaseService {
     });
   }
 
+
+  async getAppointmentsByDoctorForDate(doctorId: number, date: Date) {
+    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+    return await this.prisma.appointment.findMany({
+      where: {
+        doctorId,
+        dateTime: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+      orderBy: {
+        dateTime: 'asc',
+      },
+    });
+  }
+
+  
   // Utility method to disconnect from database
   async disconnect() {
     await this.prisma.$disconnect();

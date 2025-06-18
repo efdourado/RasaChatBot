@@ -2,20 +2,57 @@ version: "3.1"
 
 stories:
 
-- story: Caminho Feliz Completo Agendamento (Novo Fluxo)
+- story: Caminho Feliz com Banco de Dados
   steps:
   - intent: saudacao
   - action: utter_saudacao
-  - action: utter_perguntar_como_ajudar
   - intent: solicitar_agendamento
-  - action: utter_perguntar_especialidade
+  - action: action_buscar_especialidades
   - intent: informar_especialidade
     entities:
     - especialidade: "Cardiologia"
   - slot_was_set:
     - especialidade: "Cardiologia"
+  - action: action_buscar_doutores_por_especialidade
+  - intent: informar_doutor
+    entities:
+    - doctor_id: "1"
+    - doctor_name: "Dr. João Silva"
+  - slot_was_set:
+    - doctor_id: "1"
+    - doctor_name: "Dr. João Silva"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
+  - intent: informar_nome_paciente
+    entities:
+    - nome_paciente: "José da Silva"
+  - slot_was_set:
+    - nome_paciente: "José da Silva"
+  - active_loop: formulario_agendamento
+  - intent: informar_email
+    entities:
+    - email: "jose.silva@email.com"
+  - slot_was_set:
+    - email: "jose.silva@email.com"
+  - active_loop: formulario_agendamento
+  - intent: informar_data_preferida
+    entities:
+    - data: "amanhã"
+  - slot_was_set:
+    - data_preferida: "amanhã"
+  - active_loop: formulario_agendamento
+  - action: action_verificar_disponibilidade
+  - slot_was_set:
+    - horarios_disponiveis: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
+  - intent: informar_horario_escolhido
+    entities:
+    - hora: "09:00"
+  - slot_was_set:
+    - horario_escolhido: "09:00"
+  - active_loop: null
+  - action: action_agendar_consulta
+  - intent: agradecimento
+  - action: utter_agradecimento
 
 - story: Interacao Formulario Agendamento e Sucesso
   steps:

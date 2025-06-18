@@ -18,6 +18,8 @@ intents:
   - solicitar_ajuda
   - solicitar_especialidades
   - bot_challenge
+  - informar_doutor
+  - informar_email
 
 entities:
   - especialidade
@@ -25,6 +27,9 @@ entities:
   - data
   - hora
   - nome_paciente
+  - doctor_id
+  - doctor_name
+  - email
 
 slots:
   especialidade:
@@ -33,15 +38,61 @@ slots:
     mappings:
       - type: from_entity
         entity: especialidade
+  doctor_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: doctor_id
+  doctor_name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: doctor_name
+  data_preferida:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: data
+  horarios_disponiveis:
+    type: list
+    influence_conversation: true
+    mappings:
+      - type: custom
+  horario_escolhido:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: hora
+
+  hora_preferida:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: hora
+  
+  nome_paciente:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: nome_paciente
+  email:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: email
   tipo_exame:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: tipo_exame
-
-        
-
   data:
     type: text
     influence_conversation: true
@@ -49,33 +100,6 @@ slots:
       - type: from_entity
         entity: data
 
-
-
-  data_preferida:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: data
-  hora_preferida:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: hora
-  nome_paciente:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: nome_paciente
-  horario_escolhido:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: hora
-      - type: custom
   especialidades_disponiveis:
     type: list
     influence_conversation: false
@@ -86,11 +110,7 @@ slots:
     influence_conversation: false
     mappings:
       - type: custom
-  horarios_disponiveis:
-    type: list
-    influence_conversation: false
-    mappings:
-      - type: custom
+  
   status_disponibilidade:
     type: text
     influence_conversation: true
@@ -158,6 +178,11 @@ responses:
   utter_perguntar_especialidade_para_exames:
     - text: "Claro! Para qual especialidade você gostaria de saber os exames disponíveis?"
 
+  utter_ask_doctor_id:
+    - text: "Qual dos nossos médicos você prefere?"
+  utter_ask_email:
+    - text: "Qual é o seu e-mail, por favor?"
+
 actions:
   - action_buscar_especialidades
   - action_verificar_disponibilidade
@@ -192,14 +217,17 @@ actions:
   - utter_perguntar_especialidade_para_exames
 
   - action_handle_general_question
+  - action_buscar_doutores_por_especialidade
 
 forms:
   formulario_agendamento:
     required_slots:
       - especialidade
+      - doctor_id
       - nome_paciente
+      - email
       - data_preferida
-      - hora_preferida
+      - horario_escolhido
 
 session_config:
   session_expiration_time: 60

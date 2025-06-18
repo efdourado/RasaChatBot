@@ -42,6 +42,6 @@ rules:
   - active_loop: formulario_agendamento
 
 - rule: Lidar com perguntas gerais usando o Gemini
-    steps:
-    - intent: nlu_fallback
-    - action: action_handle_general_question
+  steps:
+  - intent: nlu_fallback
+  - action: action_handle_general_question

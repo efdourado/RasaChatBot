@@ -1,12 +1,11 @@
 import logging
-from typing import Any, Text, Dict, List
-import random
-import string
+import json
+import subprocess
 
 import os
-import google.generativeai as genai
 
-import json
+from typing import Any, Text, Dict, List
+from datetime import datetime, timedelta
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
@@ -14,239 +13,153 @@ from rasa_sdk.events import SlotSet, AllSlotsReset
 
 logger = logging.getLogger(__name__)
 
-ESPECIALIDADES_DA_CLINICA = ["Cardiologia", "Dermatologia", "Ortopedia", "Pediatria", "Clínico Geral"]
-EXAMES_POR_ESPECIALIDADE = {
-    "Cardiologia": ["Eletrocardiograma", "Ecocardiograma", "Teste Ergométrico"],
-    "Dermatologia": ["Biópsia de Pele", "Dermatoscopia"],
-    "Ortopedia": ["Raio-X", "Ressonância Magnética"],
-    "Pediatria": ["Teste do Pezinho", "Triagem Auditiva Neonatal"],
-    "Clínico Geral": ["Hemograma Completo", "Exame de Urina"]
-}
+def _run_db_service(command: List[str]) -> Any:
+    """Executa o serviço de banco de dados e retorna a saída JSON."""
+    base_command = ["./node_modules/.bin/ts-node", "src/service.ts"]
+    full_command = base_command + command
+    
+    try:
+        logger.info(f"Executando comando de BD: {' '.join(full_command)}")
+        result = subprocess.run(
+            full_command,
+            capture_output=True,
+            text=True,
+            check=True,
+            encoding='utf-8'
+        )
+        logger.info(f"Saída do BD: {result.stdout}")
+        return json.loads(result.stdout)
+    except (subprocess.CalledProcessError, json.JSONDecodeError, FileNotFoundError) as e:
+        logger.error(f"Erro ao executar o serviço de banco de dados: {e}")
+        if isinstance(e, subprocess.CalledProcessError):
+            logger.error(f"Stderr: {e.stderr}")
+        return None
 
-HORARIOS_MOCK = {
-    "Cardiologia": {
-        "hoje": {"manhã": ["09:00", "10:30"], "tarde": ["14:00", "15:30"]},
-        "amanhã": {"manhã": ["09:30", "11:00"], "tarde": ["14:30", "16:00"]},
-    },
-    "Dermatologia": {
-        "hoje": {"tarde": ["14:15", "16:15"]},
-        "amanhã": {"manhã": ["08:00", "09:45"], "tarde": ["13:00"]},
-    },
-    "Ortopedia": {
-        "hoje": {"manhã": ["08:30", "10:00"], "tarde": ["13:30", "15:00"]},
-        "amanhã": {"manhã": ["09:00", "10:45"], "tarde": ["14:15", "16:30"]},
-    },
-    "Pediatria": {
-        "hoje": {"manhã": ["09:15"], "tarde": ["14:45", "16:00"]},
-        "amanhã": {"tarde": ["13:30", "15:15"]},
-    },
-    "Clínico Geral": {
-        "hoje": {"manhã": ["08:00", "11:30"], "tarde": ["13:00", "16:30"]},
-        "amanhã": {"manhã": ["08:30", "10:30"], "tarde": ["14:00", "15:45"]},
-} }
 
 class ActionBuscarEspecialidades(Action):
     def name(self) -> Text:
         return "action_buscar_especialidades"
 
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        if ESPECIALIDADES_DA_CLINICA:
-            message = "As especialidades disponíveis na clínica são: " + ", ".join(ESPECIALIDADES_DA_CLINICA) + "."
-            dispatcher.utter_message(text=message)
-            return [SlotSet("especialidades_disponiveis", ESPECIALIDADES_DA_CLINICA)]
-        else:
-            dispatcher.utter_message(text="No momento, não tenho a lista de especialidades. Por favor, tente mais tarde.")
-            return [SlotSet("especialidades_disponiveis", [])]
-
-
-class ActionBuscarExamesPorEspecialidade(Action):
-    def name(self) -> Text:
-        return "action_buscar_exames_por_especialidade"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[Dict]:
+        specialties = _run_db_service(["getSpecialties"])
         
-        especialidade = tracker.get_slot("especialidade")
-        exames_disponiveis = []
-
-        if especialidade:
-            if especialidade in EXAMES_POR_ESPECIALIDADE:
-                exames_disponiveis = EXAMES_POR_ESPECIALIDADE[especialidade]
-                message = f"Para {especialidade}, os exames disponíveis são: {', '.join(exames_disponiveis)}."
-                dispatcher.utter_message(text=message)
-            else:
-                message = f"Não encontrei a especialidade {especialidade} ou ela não possui exames listados por aqui. Gostaria de ver as especialidades que temos?"
-                dispatcher.utter_message(text=message)
-        else:
-            dispatcher.utter_message(response="utter_perguntar_especialidade_para_exames")
+        if specialties:
+            specialty_names = [s['name'] for s in specialties]
+            dispatcher.utter_message(text=f"As especialidades disponíveis são: {', '.join(specialty_names)}.")
             
-        return [SlotSet("exames_disponiveis_para_especialidade", exames_disponiveis if exames_disponiveis else None)]
+            buttons = [{"title": s['name'], "payload": f'/informar_especialidade{{"especialidade":"{s["name"]}"}}'} for s in specialties]
+            dispatcher.utter_message(text="Para qual delas você gostaria de agendar?", buttons=buttons)
+        else:
+            dispatcher.utter_message(text="Desculpe, não consegui buscar as especialidades no momento.")
+            
+        return []
 
+class ActionBuscarDoutoresPorEspecialidade(Action):
+    def name(self) -> Text:
+        return "action_buscar_doutores_por_especialidade"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[Dict]:
+        especialidade_nome = tracker.get_slot("especialidade")
+        
+        specialties = _run_db_service(["getSpecialties"])
+        if not specialties:
+            dispatcher.utter_message("Não consegui encontrar nossas especialidades.")
+            return []
+
+        selected_specialty = next((s for s in specialties if s['name'].lower() == especialidade_nome.lower()), None)
+
+        if not selected_specialty:
+            dispatcher.utter_message(f"Não encontrei a especialidade '{especialidade_nome}'.")
+            return []
+
+        doctors = _run_db_service(["getDoctorsBySpecialty", str(selected_specialty['id'])])
+        
+        if doctors:
+            doctor_names = [d['name'] for d in doctors]
+            dispatcher.utter_message(text=f"Para {especialidade_nome}, temos os seguintes doutores: {', '.join(doctor_names)}.")
+            
+            buttons = [{"title": d['name'], "payload": f'/informar_doutor{{"doctor_id":"{d["id"]}", "doctor_name":"{d["name"]}"}}'} for d in doctors]
+            dispatcher.utter_message(text="Qual deles você prefere?", buttons=buttons)
+        else:
+            dispatcher.utter_message(text=f"Não encontrei doutores disponíveis para {especialidade_nome} no momento.")
+            
+        return []
 
 class ActionVerificarDisponibilidade(Action):
     def name(self) -> Text:
         return "action_verificar_disponibilidade"
 
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        especialidade = tracker.get_slot("especialidade")
-        data_preferida = tracker.get_slot("data_preferida")
-        hora_preferida = tracker.get_slot("hora_preferida")
-
-        logger.info(f"Verificando disponibilidade para: {especialidade} em {data_preferida} (preferência: {hora_preferida})")
-
-        horarios_encontrados_list = []
-        status = "nenhum"
-
-        if not especialidade or not data_preferida:
-            dispatcher.utter_message(text="Preciso da especialidade e da data para verificar os horários.")
-
-            return [SlotSet("status_disponibilidade", "dados_insuficientes_verificacao"), SlotSet("horarios_disponiveis", [])]
-
-        if especialidade not in HORARIOS_MOCK:
-            logger.warning(f"Especialidade '{especialidade}' não encontrada no HORARIOS_MOCK.")
-            dispatcher.utter_message(response="utter_especialidade_nao_encontrada_disponibilidade", especialidade=especialidade)
-            return [SlotSet("status_disponibilidade", "especialidade_nao_encontrada"), SlotSet("horarios_disponiveis", [])]
-
-        if data_preferida not in HORARIOS_MOCK[especialidade]:
-            logger.info(f"Data '{data_preferida}' não encontrada para '{especialidade}' no HORARIOS_MOCK.")
-        else:
-            horarios_do_dia_por_periodo = HORARIOS_MOCK[especialidade][data_preferida]
-            
-            periodo_desejado_str = None
-            hora_especifica_desejada = None
-
-            if hora_preferida:
-                if "manhã" in hora_preferida.lower():
-                    periodo_desejado_str = "manhã"
-                elif "tarde" in hora_preferida.lower():
-                    periodo_desejado_str = "tarde"
-                elif ":" in hora_preferida:
-                    hora_especifica_desejada = hora_preferida
-
-            if hora_especifica_desejada:
-                for periodo, horarios_no_periodo in horarios_do_dia_por_periodo.items():
-                    if hora_especifica_desejada in horarios_no_periodo:
-                        horarios_encontrados_list.append(hora_especifica_desejada)
-                        break
-            elif periodo_desejado_str:
-                if periodo_desejado_str in horarios_do_dia_por_periodo:
-                    horarios_encontrados_list.extend(horarios_do_dia_por_periodo[periodo_desejado_str])
-            else:
-                for periodo, horarios_no_periodo in horarios_do_dia_por_periodo.items():
-                    horarios_encontrados_list.extend(horarios_no_periodo)
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[Dict]:
+        doctor_id = tracker.get_slot("doctor_id")
+        data_preferida_str = tracker.get_slot("data_preferida")
         
-        if horarios_encontrados_list:
-            status = "encontrado"
-           
+        if data_preferida_str == "amanhã":
+            target_date = datetime.now() + timedelta(days=1)
         else:
-            status = "nenhum"
+            target_date = datetime.now()
 
-        logger.info(f"Horários encontrados: {horarios_encontrados_list}, Status: {status}")
-        return [SlotSet("horarios_disponiveis", horarios_encontrados_list if horarios_encontrados_list else None), SlotSet("status_disponibilidade", status)]
+        date_iso = target_date.strftime("%Y-%m-%d")
 
+        appointments = _run_db_service(["getAppointmentsByDoctor", str(doctor_id), date_iso])
 
-class ActionValidarHorarioEscolhido(Action):
-    def name(self) -> Text:
-        return "action_validar_horario_escolhido"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        horarios_de_trabalho = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
+        horarios_agendados = [datetime.fromisoformat(a['dateTime'].replace('Z', '')).strftime("%H:%M") for a in appointments]
         
-        horario_input_usuario = tracker.get_slot("hora_preferida") 
-
-        horario_escolhido_slot_value = tracker.get_slot("horario_escolhido")
-        horarios_disponiveis_lista = tracker.get_slot("horarios_disponiveis")
-
-        valid_choice = False
-        chosen_time_for_slot = None
-
-        if horario_escolhido_slot_value and horarios_disponiveis_lista:
-            if horario_escolhido_slot_value in horarios_disponiveis_lista:
-                valid_choice = True
-                chosen_time_for_slot = horario_escolhido_slot_value
-            else:
-                for option in horarios_disponiveis_lista:
-                    if option in horario_escolhido_slot_value:
-                        valid_choice = True
-                        chosen_time_for_slot = option
-                        break
+        horarios_disponiveis = [h for h in horarios_de_trabalho if h not in horarios_agendados]
         
-        if valid_choice:
-            logger.info(f"Horário '{chosen_time_for_slot}' validado e escolhido pelo usuário.")
-       
-            return [SlotSet("horario_escolhido", chosen_time_for_slot)]
+        if horarios_disponiveis:
+            dispatcher.utter_message(f"Encontrei estes horários para o dia {target_date.strftime('%d/%m')}: {', '.join(horarios_disponiveis)}")
+            return [SlotSet("horarios_disponiveis", horarios_disponiveis)]
         else:
-            logger.warning(f"Tentativa de escolha de horário inválido: '{horario_escolhido_slot_value}'. Opções eram: {horarios_disponiveis_lista}")
-            dispatcher.utter_message(text=f"Hum, não consegui confirmar o horário '{horario_escolhido_slot_value}'. Por favor, escolha um dos horários que mencionei: {', '.join(horarios_disponiveis_lista) if horarios_disponiveis_lista else 'Nenhum horário disponível para escolher.'}")
-            dispatcher.utter_message(response="utter_perguntar_horario_escolhido")
-            return [SlotSet("horario_escolhido", None)]
+            dispatcher.utter_message(f"Desculpe, não há horários disponíveis para a data selecionada.")
+            return [SlotSet("horarios_disponiveis", [])]
 
 class ActionAgendarConsulta(Action):
     def name(self) -> Text:
         return "action_agendar_consulta"
 
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        especialidade = tracker.get_slot("especialidade")
-        data_preferida = tracker.get_slot("data_preferida")
-        horario_escolhido = tracker.get_slot("horario_escolhido")
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[Dict]:
+        email = tracker.get_slot("email")
         nome_paciente = tracker.get_slot("nome_paciente")
+        
+        patient = _run_db_service(["findOrCreatePatient", email, nome_paciente])
+        if not patient:
+            dispatcher.utter_message("Desculpe, tive um problema ao verificar seus dados de paciente.")
+            return []
 
-        id_agendamento_gerado = None
-        status_agendamento = "falha_dados_insuficientes"
-        informacao_faltante_list = []
-
-        if not nome_paciente: informacao_faltante_list.append("nome do paciente")
-        if not especialidade: informacao_faltante_list.append("especialidade")
-        if not data_preferida: informacao_faltante_list.append("data")
-        if not horario_escolhido: informacao_faltante_list.append("horário confirmado")
-
-        if not informacao_faltante_list:
-            logger.info(f"Tentando agendar consulta para {nome_paciente}: {especialidade} em {data_preferida} às {horario_escolhido}")
-            
-            if random.choice([True, True, False]):
-                id_agendamento_gerado = "AG" + "".join(random.choice(string.digits) for _ in range(6))
-                status_agendamento = "sucesso"
-                logger.info(f"Agendamento para {nome_paciente} bem-sucedido. ID: {id_agendamento_gerado}")
-                dispatcher.utter_message(
-                    response="utter_agendamento_realizado_com_id", 
-                    nome_paciente=nome_paciente, 
-                    especialidade=especialidade, 
-                    data_preferida=data_preferida, 
-                    horario_escolhido=horario_escolhido,
-                    id_agendamento=id_agendamento_gerado
-                )
-            else:
-                status_agendamento = "falha_sistema"
-                logger.error(f"Falha simulada ao agendar para {nome_paciente}.")
-                dispatcher.utter_message(
-                    response="utter_agendamento_falhou",
-                    nome_paciente=nome_paciente,
-                    especialidade=especialidade, 
-                    data_preferida=data_preferida, 
-                    horario_escolhido=horario_escolhido
-                )
+        doctor_id = int(tracker.get_slot("doctor_id"))
+        horario_escolhido = tracker.get_slot("horario_escolhido")
+        data_preferida_str = tracker.get_slot("data_preferida")
+        
+        if data_preferida_str == "amanhã":
+            target_date = datetime.now() + timedelta(days=1)
         else:
-            logger.warning(f"Dados insuficientes para agendamento: {', '.join(informacao_faltante_list)}")
-            dispatcher.utter_message(
-                response="utter_agendamento_dados_insuficientes", 
-                informacao_faltante=", ".join(informacao_faltante_list)
-            )
+            target_date = datetime.now()
+        
+        hora, minuto = map(int, horario_escolhido.split(':'))
+        appointment_datetime = target_date.replace(hour=hora, minute=minuto, second=0, microsecond=0)
 
-        return [
-            SlotSet("id_agendamento", id_agendamento_gerado if status_agendamento == "sucesso" else None), 
-            SlotSet("status_agendamento", status_agendamento)
-        ]
+        appointment_data = {
+            "patientId": patient['id'],
+            "doctorId": doctor_id,
+            "dateTime": appointment_datetime.isoformat() + "Z",
+            "patientName": patient['name']
+        }
+
+        final_appointment = _run_db_service(["createAppointment", json.dumps(appointment_data)])
+
+        if final_appointment:
+            dispatcher.utter_message(
+                f"Perfeito, {patient['name']}! Sua consulta com {tracker.get_slot('doctor_name')} "
+                f"foi agendada para {appointment_datetime.strftime('%d/%m/%Y às %H:%M')}. "
+                f"O ID do agendamento é {final_appointment['id']}."
+            )
+        else:
+            dispatcher.utter_message("Desculpe, ocorreu um erro e não consegui finalizar seu agendamento.")
+            
+        return [AllSlotsReset()]
+
+
 
 
 class ActionBuscarInfoClinica(Action):
@@ -310,10 +223,8 @@ class ActionHandleGeneralQuestion(Action):
         user_question = tracker.latest_message.get('text')
         logger.info(f"Enviando pergunta para o Gemini: '{user_question}'")
 
-        # Cria o modelo GenerativeModel
         model = genai.GenerativeModel('gemini-pro')
 
-        # Constrói um prompt melhor para dar contexto ao LLM
         prompt = f"""
         Você é um assistente virtual de uma clínica chamada 'Clínica Super Saudável'.
         Sua principal função é agendar consultas. No entanto, um usuário fez uma pergunta geral.
@@ -325,10 +236,8 @@ class ActionHandleGeneralQuestion(Action):
         """
 
         try:
-            # Gera a resposta com o Gemini
             response = model.generate_content(prompt)
             
-            # Envia a resposta do Gemini para o usuário
             dispatcher.utter_message(text=response.text)
 
         except Exception as e:
@@ -352,8 +261,6 @@ class ActionExtractAppointmentInfo(Action):
         user_message = tracker.latest_message.get('text')
         model = genai.GenerativeModel('gemini-pro')
 
-        # Este prompt instrui o LLM a agir como um extrator de dados
-        # e a responder em um formato de máquina (JSON).
         prompt = f"""
         Analise a frase de um usuário que deseja marcar uma consulta.
         Extraia o nome do paciente e a especialidade médica desejada.
@@ -367,14 +274,12 @@ class ActionExtractAppointmentInfo(Action):
 
         try:
             response = model.generate_content(prompt)
-            # O Gemini vai responder algo como: ```json\n{"nome_paciente": "João da Silva", "especialidade": "Cardiologia"}\n```
-            # Precisamos limpar e parsear essa resposta.
+           
             cleaned_response = response.text.strip().replace("```json", "").replace("```", "")
             extracted_data = json.loads(cleaned_response)
 
             logger.info(f"Dados extraídos pelo Gemini: {extracted_data}")
 
-            # Agora, preenchemos os slots do Rasa com a informação extraída pelo LLM
             slots_to_set = []
             if extracted_data.get("nome_paciente"):
                 slots_to_set.append(SlotSet("nome_paciente", extracted_data["nome_paciente"]))
