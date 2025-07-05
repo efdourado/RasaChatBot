@@ -2,275 +2,45 @@ version: "3.1"
 
 stories:
 
-- story: Caminho Feliz com Banco de Dados
+- story: Caminho Feliz do Agendamento
   steps:
-  - intent: saudacao
-  - action: utter_saudacao
   - intent: solicitar_agendamento
-  - action: action_buscar_especialidades
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
   - intent: informar_especialidade
     entities:
     - especialidade: "Cardiologia"
-  - slot_was_set:
-    - especialidade: "Cardiologia"
-  - action: action_buscar_doutores_por_especialidade
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
   - intent: informar_doutor
     entities:
     - doctor_id: "1"
     - doctor_name: "Dr. João Silva"
-  - slot_was_set:
-    - doctor_id: "1"
-    - doctor_name: "Dr. João Silva"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-  - intent: informar_nome_paciente
-    entities:
-    - nome_paciente: "José da Silva"
-  - slot_was_set:
-    - nome_paciente: "José da Silva"
-  - active_loop: formulario_agendamento
-  - intent: informar_email
-    entities:
-    - email: "jose.silva@email.com"
-  - slot_was_set:
-    - email: "jose.silva@email.com"
-  - active_loop: formulario_agendamento
-  - intent: informar_data_preferida
-    entities:
-    - data: "amanhã"
-  - slot_was_set:
-    - data_preferida: "amanhã"
-  - active_loop: formulario_agendamento
-  - action: action_verificar_disponibilidade
-  - slot_was_set:
-    - horarios_disponiveis: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
-  - intent: informar_horario_escolhido
-    entities:
-    - hora: "09:00"
-  - slot_was_set:
-    - horario_escolhido: "09:00"
+  # ... O formulário continua pedindo os outros slots ...
+  # O preenchimento completo é testado pelo formulário, não precisa estar todo na história.
+  - intent: negar # Exemplo de cancelamento
+  - action: action_deactivate_loop
   - active_loop: null
-  - action: action_agendar_consulta
-  - intent: agradecimento
-  - action: utter_agradecimento
+  - action: utter_agendamento_cancelado
 
-- story: Interacao Formulario Agendamento e Sucesso
+- story: Usuário pede para ver especialidades
   steps:
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento 
-  - intent: informar_nome_paciente
-    entities:
-    - nome_paciente: "Eduardo Testador"
-  - slot_was_set:
-    - nome_paciente: "Eduardo Testador"
-  - active_loop: formulario_agendamento
-  - intent: informar_data_preferida
-    entities:
-    - data: "amanhã"
-  - slot_was_set:
-    - data_preferida: "amanhã"
-  - active_loop: formulario_agendamento
-  - intent: informar_hora_preferida
-    entities:
-    - hora: "manhã"
-  - slot_was_set:
-    - hora_preferida: "manhã"
-  - active_loop: null
-  - action: action_verificar_disponibilidade
-  - slot_was_set:
-    - status_disponibilidade: "encontrado"
-    - horarios_disponiveis: ["09:30", "11:00"]
-  - action: utter_mostrar_horarios_disponiveis
-  - intent: informar_horario_escolhido
-    entities:
-    - hora: "09:30"
-  - slot_was_set:
-    - horario_escolhido: "09:30"
-
-  - action: utter_confirmar_agendamento_final
-  - intent: afirmar
-  - action: action_agendar_consulta
-  - slot_was_set:
-    - status_agendamento: "sucesso"
-    - id_agendamento: "AG123456"
-
-  - intent: agradecimento
-  - action: utter_agradecimento
-  - intent: despedida
-  - action: utter_despedida
-
-- story: Agendamento com especialidade já informada
-  steps:
-  - intent: saudacao
-  - action: utter_saudacao
-  - intent: informar_especialidade
-    entities:
-    - especialidade: "Dermatologia"
-  - slot_was_set:
-    - especialidade: "Dermatologia"
-  - action: utter_perguntar_como_ajudar
-  - intent: solicitar_agendamento
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento
-
-- story: Agendamento - Nenhum horário encontrado, usuário tenta novamente
-  steps:
-  - intent: informar_especialidade
-    entities: [{"especialidade": "Pediatria"}]
-  - slot_was_set: [{"especialidade": "Pediatria"}]
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento
-  - intent: informar_nome_paciente
-    entities: [{"nome_paciente": "Ana Teste"}]
-  - slot_was_set: [{"nome_paciente": "Ana Teste"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_data_preferida
-    entities: [{"data": "hoje"}]
-  - slot_was_set: [{"data": "hoje"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_hora_preferida
-    entities: [{"hora": "noite"}]
-  - slot_was_set: [{"hora_preferida": "noite"}]
-  - active_loop: null
-  - action: action_verificar_disponibilidade
-  - slot_was_set:
-    - status_disponibilidade: "nenhum"
-    - horarios_disponiveis: null
-  - action: utter_nenhum_horario_disponivel
-  - intent: afirmar
-  - action: action_resetar_slots_agendamento
-  - action: utter_ask_data_preferida
-
-- story: Agendamento - Nenhum horário encontrado, usuário desiste
-  steps:
-  - intent: informar_especialidade
-    entities: [{"especialidade": "Ortopedia"}]
-  - slot_was_set: [{"especialidade": "Ortopedia"}]
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento
-  - intent: informar_nome_paciente
-    entities: [{"nome_paciente": "Carlos Prova"}]
-  - slot_was_set: [{"nome_paciente": "Carlos Prova"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_data_preferida
-    entities: [{"data": "amanhã"}]
-  - slot_was_set: [{"data": "amanhã"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_hora_preferida
-    entities: [{"hora": "18:00"}]
-  - slot_was_set: [{"hora_preferida": "18:00"}]
-  - active_loop: null
-  - action: action_verificar_disponibilidade
-  - slot_was_set:
-    - status_disponibilidade: "nenhum"
-  - action: utter_nenhum_horario_disponivel
-  - intent: negar
-  - action: utter_ok_sem_nova_tentativa
-  - intent: despedida
-  - action: utter_despedida
-
-- story: Agendamento - Especialidade não encontrada na verificação de disponibilidade
-  steps:
-  - intent: solicitar_agendamento
-  - action: utter_perguntar_especialidade
-  - intent: informar_especialidade
-    entities:
-    - especialidade: "Astrologia"
-  - slot_was_set:
-    - especialidade: "Astrologia"
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento
-  - intent: informar_nome_paciente
-    entities: [{"nome_paciente": "Luna Mistica"}]
-  - slot_was_set: [{"nome_paciente": "Luna Mistica"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_data_preferida
-    entities: [{"data": "hoje"}]
-  - slot_was_set: [{"data": "hoje"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_hora_preferida
-    entities: [{"hora": "manhã"}]
-  - slot_was_set: [{"hora_preferida": "manhã"}]
-  - active_loop: null
-  - action: action_verificar_disponibilidade
-  - slot_was_set:
-    - status_disponibilidade: "especialidade_nao_encontrada"
-
   - intent: solicitar_especialidades
   - action: action_buscar_especialidades
 
-- story: Usuário pede para listar especialidades
-  steps:
-  - intent: saudacao
-  - action: utter_saudacao
-  - intent: solicitar_especialidades
-  - action: action_buscar_especialidades
-
-- story: Usuário pede para listar exames de uma especialidade
-  steps:
-  - intent: saudacao
-  - action: utter_saudacao
-  - intent: solicitar_exames
-  - action: utter_perguntar_especialidade_para_exames
-  - intent: informar_especialidade
-    entities:
-    - especialidade: "Cardiologia"
-  - slot_was_set:
-    - especialidade: "Cardiologia"
-  - action: action_buscar_exames_por_especialidade
-
-- story: Usuário pede para listar exames de uma especialidade (especialidade já no slot)
-  steps:
-  - intent: informar_especialidade
-    entities:
-    - especialidade: "Dermatologia"
-  - slot_was_set:
-    - especialidade: "Dermatologia"
-  - intent: solicitar_exames
-  - action: action_buscar_exames_por_especialidade
-
-- story: Usuário pede ajuda
-  steps:
-  - intent: solicitar_ajuda
-  - action: utter_solicitar_ajuda
-
-- story: Usuário quer informações da clínica
+- story: Usuário pede informações da clínica
   steps:
   - intent: solicitar_info_clinica
-  - action: action_buscar_info_clinica
+  - action: utter_info_clinica_placeholder
 
-- story: Agendamento falha no sistema
+- story: Usuário agradece
   steps:
-  - intent: informar_especialidade
-    entities: [{"especialidade": "Clínico Geral"}]
-  - slot_was_set: [{"especialidade": "Clínico Geral"}]
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento
-  - intent: informar_nome_paciente
-    entities: [{"nome_paciente": "Falho Teste"}]
-  - slot_was_set: [{"nome_paciente": "Falho Teste"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_data_preferida
-    entities: [{"data": "hoje"}]
-  - slot_was_set: [{"data": "hoje"}]
-  - active_loop: formulario_agendamento
-  - intent: informar_hora_preferida
-    entities: [{"hora": "08:00"}]
-  - slot_was_set: [{"hora_preferida": "08:00"}]
-  - active_loop: null
-  - action: action_verificar_disponibilidade
-  - slot_was_set:
-    - status_disponibilidade: "encontrado"
-    - horarios_disponiveis: ["08:00", "11:30"]
-  - action: utter_mostrar_horarios_disponiveis
-  - intent: informar_horario_escolhido
-    entities: [{"hora": "08:00"}]
-  - slot_was_set: [{"horario_escolhido": "08:00"}]
-  - action: utter_confirmar_agendamento_final
-  - intent: afirmar
-  - action: action_agendar_consulta
-  - slot_was_set:
-    - status_agendamento: "falha_sistema"
+  - intent: agradecimento
+  - action: utter_agradecimento
 
-  - intent: despedida
-  - action: utter_despedida
+- story: Caminho do agendamento livre com Gemini
+  steps:
+  - intent: agendamento_livre
+  - action: action_extract_info_with_gemini

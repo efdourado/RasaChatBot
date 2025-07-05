@@ -1,47 +1,43 @@
 version: "3.1"
 
 rules:
+- rule: Responder a saudação
+  steps:
+  - intent: saudacao
+  - action: utter_saudacao
 
-- rule: Dizer tchau quando usuário se despede
+- rule: Responder a despedida
   steps:
   - intent: despedida
   - action: utter_despedida
 
-- rule: Responder ao desafio de ser um bot
+- rule: Responder a desafio "você é um bot?"
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
 
-- rule: Agradecer quando usuário agradece
+- rule: Responder a agradecimento
   steps:
   - intent: agradecimento
   - action: utter_agradecimento
 
-- rule: Oferecer ajuda quando solicitado
-  condition:
-  - active_loop: null
+- rule: Ativar formulário de agendamento ao solicitar
   steps:
-  - intent: solicitar_ajuda
-  - action: utter_solicitar_ajuda
-
-- rule: Listar especialidades quando solicitado diretamente (fora de um fluxo)
-  condition:
-  - active_loop: null
-  steps:
-  - intent: solicitar_especialidades
-  - action: action_buscar_especialidades
-
-- rule: Ativar formulário de agendamento se especialidade for informada com intenção de agendar
-  condition:
-  - active_loop: null
-  steps:
-  - intent: informar_especialidade
-  - slot_was_set:
-    - especialidade: null
+  - intent: solicitar_agendamento
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
 
-- rule: Lidar com perguntas gerais usando o Gemini
+- rule: Verificar disponibilidade quando a data for definida
+  condition:
+  - active_loop: formulario_agendamento
+  - slot_was_set:
+    - data_preferida
+  steps:
+  - action: action_verificar_disponibilidade
+
+- rule: Lidar com perguntas gerais (fallback)
+  condition:
+    - active_loop: null
   steps:
   - intent: nlu_fallback
   - action: action_handle_general_question

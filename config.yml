@@ -1,33 +1,51 @@
-recipe: default.v1
-
+# Idioma do seu assistente
 language: pt
 
+# Pipeline de processamento de linguagem natural (NLU)
 pipeline:
-- name: WhitespaceTokenizer
-- name: RegexFeaturizer
-- name: LexicalSyntacticFeaturizer
-- name: CountVectorsFeaturizer
-- name: CountVectorsFeaturizer
-  analyzer: char_wb
-  min_ngram: 1
-  max_ngram: 4
-- name: DIETClassifier
-  epochs: 100
-  constrain_similarities: true
-- name: EntitySynonymMapper
-- name: ResponseSelector
-  epochs: 100
-  constrain_similarities: true
+  # 1. Divide o texto em tokens (palavras)
+  - name: WhitespaceTokenizer
+  # 2. Encontra padrões (ex: CEP, e-mail) usando expressões regulares
+  - name: RegexFeaturizer
+  # 3. Adiciona características linguísticas (ex: se a palavra é um verbo, etc.)
+  - name: LexicalSyntacticFeaturizer
+  # 4. Cria vetores numéricos baseados na frequência de palavras
+  - name: CountVectorsFeaturizer
+  # 5. Cria vetores baseados em sequências de caracteres, bom para erros de digitação
+  - name: CountVectorsFeaturizer
+    analyzer: char_wb
+    min_ngram: 1
+    max_ngram: 4
+  # 6. O cérebro da NLU: classifica intenções e extrai entidades
+  - name: DIETClassifier
+    epochs: 100
+    constrain_similarities: true
+  # 7. Mapeia sinônimos de entidades (ex: "cardio" -> "Cardiologia")
+  - name: EntitySynonymMapper
+  # 8. Escolhe a melhor resposta para conversas curtas (ex: saudação)
+  - name: ResponseSelector
+    epochs: 100
+    constrain_similarities: true
+  # 9. Acionado se a confiança da NLU for muito baixa
+  - name: FallbackClassifier
+    threshold: 0.5
+    ambiguity_threshold: 0.1
 
+# Policies de gerenciamento de diálogo
 policies:
-- name: MemoizationPolicy
-- name: RulePolicy
+  # 1. Memoriza conversas que já viu antes
+  - name: MemoizationPolicy
+  # 2. Segue as regras definidas em rules.yml
+  - name: RulePolicy
+  # 3. Lida com interrupções e desvios inesperados na conversa (muito útil em formulários)
+  - name: UnexpecTEDIntentPolicy
+    max_history: 5
+    epochs: 100
+  # 4. O cérebro do diálogo: aprende padrões de conversa e generaliza para novos cenários
+  - name: TEDPolicy
+    max_history: 5
+    epochs: 100
+    constrain_similarities: true
 
-- name: UnexpecTEDIntentPolicy
-  max_history: 5
-  epochs: 100
-- name: TEDPolicy
-  max_history: 5
-  epochs: 100
-  constrain_similarities: true
+# ID do assistente (gerado pelo Rasa)
 assistant_id: 20250527-211133-worried-billet

@@ -4,32 +4,29 @@ intents:
   - saudacao
   - despedida
   - agradecimento
-  - solicitar_agendamento
-  - informar_especialidade
-  - informar_exame
-  - solicitar_exames
-  - informar_data_preferida
-  - informar_hora_preferida
-  - informar_nome_paciente
-  - informar_horario_escolhido
   - afirmar
   - negar
-  - solicitar_info_clinica
-  - solicitar_ajuda
-  - solicitar_especialidades
   - bot_challenge
+  - solicitar_ajuda
+  - solicitar_agendamento
+  - solicitar_especialidades
+  - solicitar_info_clinica
+  - informar_especialidade
   - informar_doutor
   - informar_email
+  - informar_nome_paciente
+  - informar_data_preferida
+  - informar_horario_escolhido
+  - agendamento_livre
 
 entities:
   - especialidade
-  - tipo_exame
-  - data
-  - hora
-  - nome_paciente
   - doctor_id
   - doctor_name
   - email
+  - nome_paciente
+  - data
+  - hora
 
 slots:
   especialidade:
@@ -50,174 +47,78 @@ slots:
     mappings:
       - type: from_entity
         entity: doctor_name
-  data_preferida:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: data
-  horarios_disponiveis:
-    type: list
-    influence_conversation: true
-    mappings:
-      - type: custom
-  horario_escolhido:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: hora
-
-  hora_preferida:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: hora
-  
-  nome_paciente:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_entity
-        entity: nome_paciente
   email:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: email
-  tipo_exame:
+  nome_paciente:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
-        entity: tipo_exame
-  data:
+        entity: nome_paciente
+  data_preferida:
     type: text
     influence_conversation: true
     mappings:
       - type: from_entity
         entity: data
-
-  especialidades_disponiveis:
-    type: list
-    influence_conversation: false
-    mappings:
-      - type: custom
-  exames_disponiveis_para_especialidade:
-    type: list
-    influence_conversation: false
-    mappings:
-      - type: custom
-  
-  status_disponibilidade:
+  horario_escolhido:
     type: text
     influence_conversation: true
     mappings:
-      - type: custom
-  id_agendamento:
-    type: text
-    influence_conversation: false
-    mappings:
-      - type: custom
-  status_agendamento:
-    type: text
+      - type: from_entity
+        entity: hora
+  horarios_disponiveis:
+    type: list
     influence_conversation: false
     mappings:
       - type: custom
 
 responses:
   utter_saudacao:
-    - text: "Olá! Como posso te ajudar hoje?"
-    - text: "Oi! Em que posso ser útil?"
+    - text: "Olá! Sou seu assistente virtual da Clínica Super Saudável. Como posso te ajudar hoje?"
   utter_despedida:
-    - text: "Tchau! Até a próxima."
-    - text: "Até logo! Se cuida."
+    - text: "Até logo! Se precisar de mais alguma coisa, é só chamar."
   utter_agradecimento:
-    - text: "De nada! 😊"
-    - text: "Fico feliz em ajudar!"
-  utter_perguntar_como_ajudar:
-    - text: "Como posso te ajudar? Você pode marcar uma consulta, perguntar sobre especialidades, exames ou informações da clínica."
-  utter_perguntar_especialidade:
-    - text: "Claro! Para qual especialidade você gostaria de agendar?"
+    - text: "De nada! Fico feliz em ajudar! 😊"
+  utter_iamabot:
+    - text: "Eu sou um assistente virtual, pronto para te ajudar a agendar consultas e obter informações sobre a clínica."
+  utter_solicitar_ajuda:
+    - text: "Claro! Eu posso:\n- Agendar uma consulta para você.\n- Listar nossas especialidades médicas.\n- Fornecer informações sobre a clínica.\nO que você gostaria de fazer?"
+  utter_info_clinica_placeholder:
+    - text: "A Clínica Super Saudável fica na Rua da Saúde, 123. Nosso telefone é (11) 5555-4444 e nosso site é www.supersaudavel.com.br."
+  utter_agendamento_cancelado:
+      - text: "Tudo bem, o agendamento foi cancelado. Se precisar de algo mais, é só me dizer."
+  utter_default:
+      - text: "Desculpe, não entendi o que você quis dizer. Poderia reformular?"
+  
   utter_ask_especialidade:
-    - text: "Para qual especialidade médica você gostaria de agendar?"
+    - text: "Para qual especialidade você gostaria de agendar?"
   utter_ask_nome_paciente:
     - text: "Qual o nome completo do paciente?"
-  utter_ask_data_preferida:
-    - text: "Para qual data você gostaria de agendar a consulta de {especialidade} para {nome_paciente}?"
-  utter_ask_hora_preferida:
-    - text: "Você tem preferência por algum horário ou período (manhã, tarde) para a consulta no dia {data_preferida}?"
-  utter_mostrar_horarios_disponiveis:
-    - text: "Para {especialidade} no dia {data_preferida}, encontrei os seguintes horários disponíveis: {horarios_disponiveis}. Qual deles você prefere?"
-  utter_perguntar_horario_escolhido:
-    - text: "Por favor, digite ou diga o horário que você escolheu da lista."
-  utter_confirmar_agendamento_final:
-    - text: "Ok, {nome_paciente}. Confirmando o agendamento: {especialidade}, no dia {data_preferida} às {horario_escolhido}. Correto?"
-  utter_agendamento_realizado_com_id:
-    - text: "Agendamento para {nome_paciente} ({especialidade}) no dia {data_preferida} às {horario_escolhido} realizado com sucesso! Seu ID de agendamento é: {id_agendamento}."
-  utter_agendamento_falhou:
-    - text: "Houve um problema ao realizar o seu agendamento para {nome_paciente} ({especialidade}) no dia {data_preferida} às {horario_escolhido}. Por favor, tente novamente mais tarde."
-  utter_agendamento_dados_insuficientes:
-    - text: "Não consigo completar o agendamento. Faltam informações: {informacao_faltante}."
-  utter_nenhum_horario_disponivel:
-    - text: "Desculpe, não encontrei horários disponíveis para {especialidade} em {data_preferida} no período de {hora_preferida}. Gostaria de tentar outra data ou período?"
-  utter_especialidade_nao_encontrada_disponibilidade:
-    - text: "Desculpe, não encontrei a especialidade {especialidade} em nossos registros de horários. Gostaria de ver as especialidades disponíveis?"
-  utter_ok_sem_nova_tentativa:
-    - text: "Entendido. Se precisar de algo mais, é só chamar!"
-  utter_solicitar_ajuda:
-    - text: "Não se preocupe, estou aqui para ajudar. Você pode: \n- Agendar uma consulta\n- Perguntar sobre especialidades disponíveis\n- Listar exames por especialidade\n- Pedir informações da clínica. \nO que você gostaria de fazer?"
-  utter_default:
-    - text: "Desculpe, não entendi. Poderia reformular?"
-  utter_iamabot:
-    - text: "Eu sou um assistente virtual programado para te ajudar com agendamentos e informações da clínica."
-  utter_info_clinica_placeholder:
-    - text: "Nossa clínica fica na Rua Exemplo, 123. Atendemos diversos convênios. Para mais detalhes, ligue para (XX) XXXX-XXXX."
-  utter_perguntar_especialidade_para_exames:
-    - text: "Claro! Para qual especialidade você gostaria de saber os exames disponíveis?"
-
-  utter_ask_doctor_id:
-    - text: "Qual dos nossos médicos você prefere?"
   utter_ask_email:
-    - text: "Qual é o seu e-mail, por favor?"
+    - text: "E qual o seu e-mail para contato?"
+  utter_ask_data_preferida:
+    - text: "Ótimo. Para qual dia você gostaria de agendar? (Ex: hoje, amanhã, 25/07)"
+  utter_ask_horario_escolhido:
+    - text: "Perfeito! Encontrei os seguintes horários disponíveis para {doctor_name} no dia {data_preferida}: {horarios_disponiveis}. Qual deles você prefere?"
+  utter_sem_horarios:
+    - text: "Desculpe, o(a) {doctor_name} não tem horários disponíveis para o dia {data_preferida}. Gostaria de tentar outra data?"
+  utter_confirmacao_agendamento:
+    - text: "Perfeito! Sua consulta com {doctor_name} ({especialidade}) está agendada para {data_preferida} às {horario_escolhido}. O ID do agendamento é {agendamento_id}. Até lá!"
+  utter_erro_agendamento:
+    - text: "Peço desculpas, mas ocorreu um erro ao tentar finalizar seu agendamento. Por favor, tente novamente."
 
 actions:
   - action_buscar_especialidades
-  - action_verificar_disponibilidade
+  - action_ask_doctor_id
   - action_agendar_consulta
-  - action_buscar_exames_por_especialidade
-  - action_buscar_info_clinica
-  - action_resetar_slots_agendamento
-  - action_validar_horario_escolhido
-
-  - utter_saudacao
-  - utter_despedida
-  - utter_agradecimento
-  - utter_perguntar_como_ajudar
-  - utter_perguntar_especialidade
-  - utter_ask_especialidade
-  - utter_ask_nome_paciente
-  - utter_ask_data_preferida
-  - utter_ask_hora_preferida
-  - utter_mostrar_horarios_disponiveis
-  - utter_perguntar_horario_escolhido
-  - utter_confirmar_agendamento_final
-  - utter_agendamento_realizado_com_id
-  - utter_agendamento_falhou
-  - utter_agendamento_dados_insuficientes
-  - utter_nenhum_horario_disponivel
-  - utter_especialidade_nao_encontrada_disponibilidade
-  - utter_ok_sem_nova_tentativa
-  - utter_solicitar_ajuda
-  - utter_default
-  - utter_iamabot
-  - utter_info_clinica_placeholder
-  - utter_perguntar_especialidade_para_exames
-
+  - action_verificar_disponibilidade
   - action_handle_general_question
-  - action_buscar_doutores_por_especialidade
+  - action_extract_info_with_gemini
 
 forms:
   formulario_agendamento:

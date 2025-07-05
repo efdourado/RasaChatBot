@@ -128,34 +128,46 @@ nlu:
 
 - intent: informar_data_preferida
   examples: |
-    - [Para amanhã](data)
-    - [Na próxima semana](data)
-    - No dia [15](data)
-    - Pode ser dia [25/12](data)
-    - Dia [25 de dezembro](data)
-    - Quero para [hoje](data) mesmo
-    - Para o dia [primeiro de junho](data)
-    - Data [10 de maio](data)
-    - [Amanhã](data)
-    - [Hoje](data)
-    - [Depois de amanhã](data)
-    - [Semana que vem](data)
-    - [Dia 5](data)
-    - [10/01](data)
-    - [Dia dez de janeiro](data)
-    - Para [terça-feira](data)
-    - Na [próxima quarta](data)
-    - Em [15 dias](data)
-    - [Daqui a uma semana](data)
-    - [No começo do mês que vem](data)
-    - Para [segunda](data)
-    - Gostaria para [sexta](data)
+    - Para [amanhã](data_preferida)
+    - [Na próxima semana](data_preferida)
+    - No dia [15](data_preferida)
+    - Pode ser dia [25/12](data_preferida)
+    - Dia [25 de dezembro](data_preferida)
+    - Quero para [hoje](data_preferida) mesmo
+    - Para o dia [primeiro de junho](data_preferida)
+    - Data [10 de maio](data_preferida)
+    - [Amanhã](data_preferida)
+    - [Hoje](data_preferida)
+    - [Depois de amanhã](data_preferida)
+    - [Semana que vem](data_preferida)
+    - [Dia 5](data_preferida)
+    - [10/01](data_preferida)
+    - [Dia dez de janeiro](data_preferida)
+    - Para [terça-feira](data_preferida)
+    - Na [próxima quarta](data_preferida)
+    - Em [15 dias](data_preferida)
+    - [Daqui a uma semana](data_preferida)
+    - [No começo do mês que vem](data_preferida)
+    - Para [segunda](data_preferida)
+    - Gostaria para [sexta](data_preferida)
+    - quero para [hoje](data_preferida)
+    - pode ser [amanhã](data_preferida)
+    - na [próxima sexta](data_preferida)
+    - no dia [15/08](data_preferida)
+    - [hoje a tarde](data_preferida)
+    - [amanhã de manhã](data_preferida)
+    - [amanhã às 10h](data_preferida)
+    - quero para [hoje às 15:30](data_preferida)
+    - agende para [terça que vem](data_preferida)
+    - no dia [20 de novembro](data_preferida)
+    - pode ser no dia [05 do mês que vem](data_preferida)
+    - para o dia [30-05](data_preferida)
 
 - intent: informar_hora_preferida
   examples: |
     - [Pela manhã](hora)
     - [Às 14h](hora)
-    - Pode ser às [10:00](hora)?
+    - Pode ser às [10:00](hora)
     - No [final da tarde](hora)
     - Queria um horário para as [3 da tarde](hora)
     - [Manhã](hora)
@@ -168,7 +180,6 @@ nlu:
     - [16 horas](hora)
     - [Qualquer horário de manhã](hora)
     - [No período da tarde](hora)
-    - [À noitinha](hora) (se aplicável à clínica)
     - [Primeiro horário da manhã](hora)
     - [Lá pelas duas](hora)
     - [Seis da tarde](hora)
@@ -194,20 +205,20 @@ nlu:
 
 - intent: informar_horario_escolhido
   examples: |
-    - Pode ser às [09:00](hora)
-    - Quero o de [10:30](hora)
-    - [14:00](hora) está ótimo
-    - Prefiro [15:30](hora)
-    - O horário das [16:00](hora)
-    - [11:00](hora)
-    - Escolho [08:15](hora)
-    - O das [17:45](hora)
-    - [Nove e meia](hora)
-    - [Dez horas](hora)
-    - Vou querer [13:20](hora)
-    - Pode ser [16h30](hora)
-    - Fico com o horário das [onze e quinze](hora)
-    - Seleciono [10:00 AM](hora)
+    - Pode ser às [09:00](horario_escolhido)
+    - Quero o de [10:30](horario_escolhido)
+    - [14:00](horario_escolhido) está ótimo
+    - Prefiro [15:30](horario_escolhido)
+    - O horário das [16:00](horario_escolhido)
+    - [11:00](horario_escolhido)
+    - Escolho [08:15](horario_escolhido)
+    - O das [17:45](horario_escolhido)
+    - [Nove e meia](horario_escolhido)
+    - [Dez horas](horario_escolhido)
+    - Vou querer [13:20](horario_escolhido)
+    - Pode ser [16h30](horario_escolhido)
+    - Fico com o horário das [onze e quinze](horario_escolhido)
+    - Seleciono [10:00 AM](horario_escolhido)
 
 - intent: afirmar
   examples: |
@@ -326,3 +337,10 @@ nlu:
     - [joao.silva@email.com](email)
     - pode anotar [maria.oliveira@email.com](email)
     - o email é [carlos.santos@email.com](email)
+
+- intent: agendamento_livre
+  examples: |
+    - queria ver um cardiologista pra semana que vem
+    - preciso marcar uma consulta com a dra ana pra amanhã
+    - tem horário com o dr. joão na parte da tarde?
+    - marcar consulta
