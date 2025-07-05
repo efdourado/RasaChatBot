@@ -185,6 +185,11 @@ nlu:
     - [Seis da tarde](hora)
     - [08:00](hora)
 
+    - [às 9h](hora)
+    - [as 9h](hora)
+    - [as 15:00](hora)
+    - [15h](hora)
+
 - intent: informar_nome_paciente
   examples: |
     - Meu nome é [João Silva](nome_paciente)
@@ -219,6 +224,13 @@ nlu:
     - Pode ser [16h30](horario_escolhido)
     - Fico com o horário das [onze e quinze](horario_escolhido)
     - Seleciono [10:00 AM](horario_escolhido)
+
+    - o primeiro horário
+    - pode ser o primeiro
+    - a opção 1
+    - o segundo
+    - as 9h
+    - as 9
 
 - intent: afirmar
   examples: |
@@ -344,5 +356,3 @@ nlu:
     - preciso marcar uma consulta com a dra ana pra amanhã
     - tem horário com o dr. joão na parte da tarde?
     - marcar consulta
-
-

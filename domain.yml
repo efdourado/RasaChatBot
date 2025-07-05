@@ -19,6 +19,8 @@ intents:
   - informar_horario_escolhido
   - agendamento_livre
 
+  - informar_hora_preferida
+
 entities:
   - especialidade
   - doctor_id

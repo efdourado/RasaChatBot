@@ -13,6 +13,8 @@ from rasa_sdk.types import DomainDict
 import google.generativeai as genai
 from dotenv import load_dotenv
 
+import re
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -299,7 +301,6 @@ class ValidateFormularioAgendamento(FormValidationAction):
     def name(self) -> Text:
         return "validate_formulario_agendamento"
 
-
     async def validate_horario_escolhido(
         self,
         slot_value: Any,
@@ -307,25 +308,45 @@ class ValidateFormularioAgendamento(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        """Valida a escolha do horário e confirma o agendamento."""
+        """Valida a escolha do horário de forma flexível."""
         horarios_disponiveis = tracker.get_slot("horarios_disponiveis")
-        horario_selecionado = slot_value
+        user_text = tracker.latest_message.get("text", "").lower()
 
-        # Fallback: se o slot não foi preenchido pelo NLU, tenta encontrar no texto
-        if horario_selecionado not in horarios_disponiveis:
-            user_text = tracker.latest_message.get("text", "")
-            # Procura por um formato HH:MM no texto do usuário
-            match = re.search(r'\b(\d{1,2}:\d{2})\b', user_text)
-            if match and match.group(1) in horarios_disponiveis:
-                horario_selecionado = match.group(1)
-            else:
-                dispatcher.utter_message(
-                    text=f"Não entendi. Por favor, escolha um dos horários que eu listei: {', '.join(horarios_disponiveis)}"
-                )
-                return {"horario_escolhido": None}
+        if not horarios_disponiveis:
+            # Caso de segurança, não deveria acontecer
+            dispatcher.utter_message(text="Desculpe, parece que não tenho horários para validar.")
+            return {"horario_escolhido": None}
 
-        # Se a validação passou, o slot é preenchido e podemos seguir para a confirmação
-        return {"horario_escolhido": horario_selecionado}
+        # 1. Tenta encontrar o horário exato (ex: "15:00")
+        for horario in horarios_disponiveis:
+            if horario in user_text:
+                return {"horario_escolhido": horario}
+
+        # 2. Tenta encontrar números no texto (ex: "às 9h", "9 horas")
+        numeros_encontrados = re.findall(r'\d+', user_text)
+        if numeros_encontrados:
+            for num_str in numeros_encontrados:
+                # Procura por horários que comecem com o número encontrado (ex: "9" em "09:00")
+                for horario in horarios_disponiveis:
+                    if horario.startswith(num_str.zfill(2)): # zfill(2) transforma '9' em '09'
+                        return {"horario_escolhido": horario}
+
+        # 3. Tenta encontrar por posição (ex: "o primeiro", "opção 2")
+        posicoes = {
+            "primeiro": 0, "primeira": 0, "1": 0,
+            "segundo": 1, "segunda": 1, "2": 1,
+            "terceiro": 2, "terceira": 2, "3": 2,
+        }
+        for palavra, index in posicoes.items():
+            if palavra in user_text:
+                if len(horarios_disponiveis) > index:
+                    return {"horario_escolhido": horarios_disponiveis[index]}
+
+        # Se nada funcionar, pede para o usuário tentar de novo
+        dispatcher.utter_message(
+            text=f"Não consegui entender sua escolha. Por favor, selecione um dos horários a seguir: {', '.join(horarios_disponiveis)}"
+        )
+        return {"horario_escolhido": None}
 
     async def validate_data_preferida(
         self,
