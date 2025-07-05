@@ -28,7 +28,21 @@ model Doctor {
   updatedAt    DateTime      @updatedAt
   appointments Appointment[]
   specialty    Specialty     @relation(fields: [specialtyId], references: [id])
+
+  availability DoctorAvailability[] 
 }
+
+model DoctorAvailability {
+  id        Int     @id @default(autoincrement())
+  dayOfWeek Int
+  startTime String  // Formato "HH:MM"
+  endTime   String  // Formato "HH:MM"
+  doctor    Doctor  @relation(fields: [doctorId], references: [id])
+  doctorId  Int
+
+  @@unique([doctorId, dayOfWeek])
+}
+
 
 model Specialty {
   id          Int      @id @default(autoincrement())

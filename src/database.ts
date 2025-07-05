@@ -94,6 +94,17 @@ export class DatabaseService {
     });
   }
 
+  async getAvailabilityByDoctor(doctorId: number, dayOfWeek: number) {
+    return await this.prisma.doctorAvailability.findUnique({
+      where: {
+        doctorId_dayOfWeek: {
+          doctorId: doctorId,
+          dayOfWeek: dayOfWeek,
+        },
+      },
+    });
+  }
+
   // Specialty operations
   async createSpecialty(data: {
     name: string;

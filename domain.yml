@@ -68,12 +68,15 @@ slots:
     mappings:
       - type: from_entity
         entity: data_preferida
+
   horario_escolhido:
     type: text
-    influence_conversation: true
     mappings:
-      - type: from_entity
-        entity: horario_escolhido
+    - type: from_entity
+      entity: horario_escolhido
+    - type: from_text
+      intent: informar_horario_escolhido
+
   horarios_disponiveis:
     type: list
     influence_conversation: false

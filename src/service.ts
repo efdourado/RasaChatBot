@@ -15,6 +15,26 @@ const printJSON = (data: any) => {
 const args = process.argv.slice(2);
 const command = args[0];
 
+
+function generateTimeSlots(start: string, end: string, intervalMinutes: number): string[] {
+    const slots = [];
+    const [startHour, startMinute] = start.split(':').map(Number);
+    const [endHour, endMinute] = end.split(':').map(Number);
+    
+    let currentTime = new Date();
+    currentTime.setHours(startHour, startMinute, 0, 0);
+
+    const endTime = new Date();
+    endTime.setHours(endHour, endMinute, 0, 0);
+
+    while (currentTime < endTime) {
+        slots.push(currentTime.toTimeString().substring(0, 5));
+        currentTime.setMinutes(currentTime.getMinutes() + intervalMinutes);
+    }
+    return slots;
+}
+
+
 async function main() {
   switch (command) {
     case 'getSpecialties':
@@ -71,6 +91,38 @@ async function main() {
       });
       printJSON(appointment);
       break;
+
+    case 'getAvailableSlotsByDoctorAndDate': {
+        if (args.length < 3) {
+          throw new Error("Doctor ID and Date are required.");
+        }
+        const doctorId = parseInt(args[1], 10);
+        const dateStr = args[2]; // Formato "YYYY-MM-DD"
+        
+        const targetDate = new Date(`${dateStr}T12:00:00.000Z`);
+        const dayOfWeek = targetDate.getUTCDay();
+
+        // 1. Buscar a disponibilidade do médico para o dia da semana
+        const availability = await db.getAvailabilityByDoctor(doctorId, dayOfWeek);
+
+        if (!availability) {
+            printJSON([]); // Médico não trabalha neste dia
+            return;
+        }
+
+        // 2. Gerar todos os horários de trabalho possíveis (a cada 60 min)
+        const allPossibleSlots = generateTimeSlots(availability.startTime, availability.endTime, 60);
+
+        // 3. Buscar agendamentos existentes para o médico na data específica
+        const appointments = await db.getAppointmentsByDoctorForDate(doctorId, targetDate);
+        const bookedSlots = appointments.map(a => a.dateTime.toISOString().substring(11, 16));
+        
+        // 4. Filtrar e retornar apenas os horários disponíveis
+        const availableSlots = allPossibleSlots.filter(slot => !bookedSlots.includes(slot));
+        
+        printJSON(availableSlots);
+        break;
+    }
 
     default:
       console.error('Comando inválido');

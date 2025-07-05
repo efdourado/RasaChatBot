@@ -92,37 +92,40 @@ class ActionExtractInfoWithGemini(Action):
             return [FollowupAction("action_handle_general_question")]
 
 
-def _run_db_service(command: List[str]) -> Any:
-    """Executa o serviço de banco de dados e retorna a saída JSON."""
-    base_command = ["./node_modules/.bin/ts-node", "src/service.ts"]
-    full_command = base_command + command
-    
+def _run_db_service(args: List[str]) -> Any:
+    """Executa o script de serviço do banco de dados e retorna a saída JSON."""
     try:
-        logger.info(f"Executando comando de BD: {' '.join(full_command)}")
+        command = ["npx", "ts-node", "src/service.ts"] + args
         result = subprocess.run(
-            full_command,
+            command,
             capture_output=True,
             text=True,
             check=True,
             encoding='utf-8'
         )
-        if not result.stdout:
-            return None
-        logger.info(f"Saída do BD: {result.stdout}")
-        return json.loads(result.stdout)
-    except FileNotFoundError:
-        logger.error("Erro: 'ts-node' não encontrado. Certifique-se de que as dependências do Node.js estão instaladas com 'npm install'.")
-        return None
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Erro no serviço de banco de dados: {e.stderr}")
-        return None
-    except json.JSONDecodeError as e:
-        logger.error(f"Erro ao decodificar JSON do serviço de BD: {e}. Saída recebida: {result.stdout}")
-        return None
-    except Exception as e:
-        logger.error(f"Um erro inesperado ocorreu ao chamar o serviço de BD: {e}")
+
+        json_output = None
+        for line in result.stdout.strip().split('\n'):
+            if line.startswith('[') or line.startswith('{'):
+                json_output = line
+                break
+        
+        if json_output:
+            return json.loads(json_output)
+        
+        print("Saída do serviço não continha JSON:", result.stdout)
         return None
 
+    except subprocess.CalledProcessError as e:
+        print(f"Erro ao executar o serviço: {e}")
+        print("Stderr:", e.stderr)
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Erro ao decodificar JSON: {e}")
+        return None
+    except Exception as e:
+        print(f"Um erro inesperado ocorreu: {e}")
+        return None
 
 class ActionBuscarEspecialidades(Action):
     def name(self) -> Text:
@@ -274,13 +277,55 @@ class ActionAgendarConsulta(Action):
 
 
 
+WEEKDAY_MAP = {
+    "segunda": 0, "segunda-feira": 0,
+    "terça": 1, "terça-feira": 1,
+    "quarta": 2, "quarta-feira": 2,
+    "quinta": 3, "quinta-feira": 3,
+    "sexta": 4, "sexta-feira": 4,
+    "sábado": 5,
+    "domingo": 6,
+}
 
-
+def _find_next_weekday(start_date: datetime, target_weekday: int) -> datetime:
+    """Encontra a data da próxima ocorrência de um dia da semana."""
+    days_ahead = target_weekday - start_date.weekday()
+    if days_ahead < 0:
+        days_ahead += 7
+    return start_date + timedelta(days=days_ahead)
 
 
 class ValidateFormularioAgendamento(FormValidationAction):
     def name(self) -> Text:
         return "validate_formulario_agendamento"
+
+
+    async def validate_horario_escolhido(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Valida a escolha do horário e confirma o agendamento."""
+        horarios_disponiveis = tracker.get_slot("horarios_disponiveis")
+        horario_selecionado = slot_value
+
+        # Fallback: se o slot não foi preenchido pelo NLU, tenta encontrar no texto
+        if horario_selecionado not in horarios_disponiveis:
+            user_text = tracker.latest_message.get("text", "")
+            # Procura por um formato HH:MM no texto do usuário
+            match = re.search(r'\b(\d{1,2}:\d{2})\b', user_text)
+            if match and match.group(1) in horarios_disponiveis:
+                horario_selecionado = match.group(1)
+            else:
+                dispatcher.utter_message(
+                    text=f"Não entendi. Por favor, escolha um dos horários que eu listei: {', '.join(horarios_disponiveis)}"
+                )
+                return {"horario_escolhido": None}
+
+        # Se a validação passou, o slot é preenchido e podemos seguir para a confirmação
+        return {"horario_escolhido": horario_selecionado}
 
     async def validate_data_preferida(
         self,
@@ -289,49 +334,59 @@ class ValidateFormularioAgendamento(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        """Valida a data e busca os horários disponíveis."""
+        """Valida a data e busca os horários disponíveis no banco."""
         
         doctor_id = tracker.get_slot("doctor_id")
         doctor_name = tracker.get_slot("doctor_name")
+        user_input_date = slot_value.lower()
 
-        if not doctor_id:
-            dispatcher.utter_message(text="Ocorreu um erro, não consegui identificar o médico selecionado.")
+        if not doctor_id or doctor_id == 'any':
+            dispatcher.utter_message(text="Por favor, selecione um médico primeiro.")
             return {"data_preferida": None}
 
+        # Lógica de conversão de data melhorada
+        today = datetime.now()
+        target_date = None
 
-        target_date = datetime.now()
-        if "amanhã" in slot_value.lower():
-            target_date += timedelta(days=1)
-
-        elif "/" in slot_value:
+        if "hoje" in user_input_date:
+            target_date = today
+        elif "amanhã" in user_input_date:
+            target_date = today + timedelta(days=1)
+        elif "/" in user_input_date:
             try:
-                day, month = map(int, slot_value.split('/'))
-                year = datetime.now().year
-                target_date = datetime(year, month, day)
+                day, month = map(int, user_input_date.split('/'))
+                target_date = datetime(today.year, month, day)
+                if target_date < today.replace(hour=0, minute=0, second=0, microsecond=0):
+                    target_date = datetime(today.year + 1, month, day) # Se for no passado, tenta o próximo ano
             except ValueError:
-                dispatcher.utter_message(text="Não entendi o formato da data. Por favor, use 'hoje', 'amanhã' ou 'DD/MM'.")
+                dispatcher.utter_message(text="Formato de data inválido. Use 'hoje', 'amanhã' ou 'DD/MM'.")
                 return {"data_preferida": None}
+        else:
+            # Verifica se o input é um dia da semana
+            for day_name, day_index in WEEKDAY_MAP.items():
+                if day_name in user_input_date:
+                    target_date = _find_next_weekday(today, day_index)
+                    break
+        
+        if not target_date:
+            dispatcher.utter_message(text=f"Não entendi a data '{slot_value}'. Por favor, tente 'hoje', 'amanhã', 'DD/MM' ou um dia da semana como 'segunda'.")
+            return {"data_preferida": None}
 
         date_iso = target_date.strftime("%Y-%m-%d")
 
-
-        horarios_de_trabalho = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"]
-        appointments = _run_db_service(["getAppointmentsByDoctorAndDate", doctor_id, date_iso])
+        # Chama o serviço para buscar horários disponíveis
+        horarios_disponiveis = _run_db_service(["getAvailableSlotsByDoctorAndDate", str(doctor_id), date_iso])
         
-        if appointments is None:
+        if horarios_disponiveis is None:
             dispatcher.utter_message(text="Desculpe, tive um problema ao verificar os horários. Tente novamente.")
             return {"data_preferida": None}
 
-        horarios_agendados = [datetime.fromisoformat(a['dateTime'].replace('Z', '')).strftime("%H:%M") for a in appointments]
-        horarios_disponiveis = [h for h in horarios_de_trabalho if h not in horarios_agendados]
-
         if horarios_disponiveis:
-
-            message = f"Ótimo! Encontrei os seguintes horários disponíveis para o(a) Dr(a). {doctor_name} no dia {target_date.strftime('%d/%m')}:"
+            horarios_str = ", ".join(horarios_disponiveis)
+            message = f"Ótimo! Encontrei os seguintes horários para o(a) Dr(a). {doctor_name} no dia {target_date.strftime('%d/%m')}: {horarios_str}"
             buttons = [{"title": h, "payload": f'/informar_horario_escolhido{{"horario_escolhido":"{h}"}}'} for h in horarios_disponiveis]
             dispatcher.utter_message(text=message, buttons=buttons)
-            return {"data_preferida": slot_value, "horarios_disponiveis": horarios_disponiveis}
+            return {"data_preferida": target_date.strftime('%d/%m/%Y'), "horarios_disponiveis": horarios_disponiveis}
         else:
-
-            dispatcher.utter_message(text=f"Desculpe, o(a) Dr(a). {doctor_name} não tem horários livres na data solicitada. Por favor, tente outra data.")
-            return {"data_preferida": None}
+            dispatcher.utter_message(text=f"Desculpe, o(a) Dr(a). {doctor_name} não tem horários livres no dia {target_date.strftime('%d/%m')}. Por favor, escolha outra data.")
+            return {"data_preferida": None, "horarios_disponiveis": []}

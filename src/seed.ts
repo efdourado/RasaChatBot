@@ -8,6 +8,9 @@ async function main() {
   const prisma = db.getClient();
   
   await prisma.appointment.deleteMany();
+  
+  await prisma.doctorAvailability.deleteMany();
+
   await prisma.doctor.deleteMany();
   await prisma.patient.deleteMany();
   await prisma.specialty.deleteMany();
@@ -79,6 +82,21 @@ async function main() {
   });
 
   console.log('✅ Doctors created');
+
+  console.log('⏰ Creating doctor availabilities...');
+  await prisma.doctorAvailability.createMany({
+    data: [
+      // Dr. João Silva (Cardiologista) - Seg/Qua/Sex das 09:00 às 17:00
+      { doctorId: drSilva.id, dayOfWeek: 1, startTime: '09:00', endTime: '17:00' }, // Segunda
+      { doctorId: drSilva.id, dayOfWeek: 3, startTime: '09:00', endTime: '17:00' }, // Quarta
+      { doctorId: drSilva.id, dayOfWeek: 5, startTime: '09:00', endTime: '17:00' }, // Sexta
+
+      // Dra. Maria Santos (Dermatologista) - Ter/Qui das 10:00 às 18:00
+      { doctorId: drSantos.id, dayOfWeek: 2, startTime: '10:00', endTime: '18:00' }, // Terça
+      { doctorId: drSantos.id, dayOfWeek: 4, startTime: '10:00', endTime: '18:00' }, // Quinta
+    ]
+  });
+  console.log('✅ Availabilities created');
 
   // Create sample patients
   const patient1 = await db.createPatient({
