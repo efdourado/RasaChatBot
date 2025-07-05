@@ -18,9 +18,8 @@ stories:
     - doctor_name: "Dr. João Silva"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-  # ... O formulário continua pedindo os outros slots ...
-  # O preenchimento completo é testado pelo formulário, não precisa estar todo na história.
-  - intent: negar # Exemplo de cancelamento
+  
+  - intent: negar
   - action: action_deactivate_loop
   - active_loop: null
   - action: utter_agendamento_cancelado

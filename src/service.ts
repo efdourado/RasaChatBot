@@ -1,6 +1,10 @@
 import { db } from './database';
 import { Doctor, Patient, Specialty } from '@prisma/client';
 
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
 const printJSON = (data: any) => {
   console.log(JSON.stringify(data, (key, value) => 
     typeof value === 'bigint' ? value.toString() : value
@@ -24,12 +28,28 @@ async function main() {
       printJSON(doctors);
       break;
 
-    case 'getAppointmentsByDoctor':
-      const doctorId = parseInt(args[1], 10);
-      const date = args[2]; // Formato YYYY-MM-DD
-      const appointments = await db.getAppointmentsByDoctorForDate(doctorId, new Date(date));
-      printJSON(appointments);
-      break;
+    case 'getAppointmentsByDoctorAndDate':
+        if (args.length < 2) {
+          throw new Error("Doctor ID and Date are required.");
+        }
+        const doctorId = parseInt(args[0], 10);
+        const dateStr = args[1]; // Espera o formato "YYYY-MM-DD"
+        
+        // Cria o intervalo de data para o dia inteiro
+        const startDate = new Date(`${dateStr}T00:00:00.000Z`);
+        const endDate = new Date(`${dateStr}T23:59:59.999Z`);
+
+        const appointments = await prisma.appointment.findMany({
+            where: {
+                doctorId: doctorId,
+                dateTime: {
+                    gte: startDate, // "greater than or equal to" o início do dia
+                    lte: endDate,   // "less than or equal to" o fim do dia
+                }
+            }
+        });
+        printJSON(appointments);
+        break;
     
     case 'findOrCreatePatient':
       const email = args[1];
