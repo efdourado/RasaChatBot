@@ -20,12 +20,7 @@ rules:
   steps:
   - intent: agradecimento
   - action: utter_agradecimento
-
-- rule: Ativar formulario_agendamento ao solicitar
-  steps:
-  - intent: solicitar_agendamento
-  - action: formulario_agendamento
-  - active_loop: formulario_agendamento
+  
 
 - rule: Lidar com perguntas gerais (fallback)
   condition:
@@ -35,14 +30,20 @@ rules:
   - action: action_handle_general_question
 
 
+- rule: Ativar formulario_agendamento ao solicitar
+  steps:
+  - intent: solicitar_agendamento
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
 
 
-
-- rule: Handle formulario_agendamento submission
+- rule: Submeter o formulário
   condition:
-  - active_loop: null
+  - active_loop: formulario_agendamento
   - slot_was_set:
     - horario_escolhido
   steps:
+  - action: formulario_agendamento
+  - active_loop: null
   - action: action_agendar_consulta
-  - action: action_listen
+  - action: utter_agradecimento 
