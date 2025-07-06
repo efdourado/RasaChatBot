@@ -1,2 +1,2 @@
 action_endpoint:
-  url: ${ACTION_ENDPOINT_URL}
+  url: "http://localhost:5055/webhook"
