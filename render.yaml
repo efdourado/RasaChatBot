@@ -4,26 +4,24 @@ services:
   - type: pserv
     name: chatbot-postgres-db
     plan: free
-    region: oregon # Você pode escolher a região mais próxima
-    # A sintaxe correta para definir o tipo de banco de dados
-    addon: postgres
+    region: oregon 
 
   # Serviço 2: API do Banco de Dados (Node.js)
   # Conecta-se ao banco de dados PostgreSQL criado acima.
   - type: web
     name: chatbot-db-api
-    env: node # Usando o ambiente Node.js nativo do Render
+    env: node 
     plan: free
     buildCommand: "npm install && npx prisma migrate deploy && npm run prisma:generate && npm run build"
     startCommand: "node dist/service.js"
-    healthCheckPath: / # O Render vai verificar se sua API está no ar
+    healthCheckPath: / 
     envVars:
       - key: DATABASE_URL
         fromService:
           type: pserv
           name: chatbot-postgres-db
           property: connectionString
-      - key: PORT # O Render define a porta automaticamente
+      - key: PORT 
         value: 3000
 
   # Serviço 3: Servidor de Ações do Rasa (Python)
@@ -31,15 +29,13 @@ services:
     name: chatbot-actions
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile # Usando seu Dockerfile existente
+    dockerfilePath: ./Dockerfile 
     healthCheckPath: /health
-    # Comando para iniciar especificamente o servidor de ações
     dockerCommand: "rasa run actions"
     envVars:
       - key: GEMINI_API_KEY
-        sync: false # Crie esta variável de ambiente no dashboard do Render
+        sync: false 
       - key: DATABASE_API_URL
-        # Comunicação interna entre os serviços do Render
         value: "http://chatbot-db-api:3000"
 
   # Serviço 4: Servidor Principal do Rasa (Python)
@@ -47,10 +43,8 @@ services:
     name: chatbot-rasa-server
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile # Usando o mesmo Dockerfile
-    # Este serviço usará o comando CMD do Dockerfile para iniciar
-    healthCheckPath: / # Verifica se o servidor Rasa está respondendo
+    dockerfilePath: ./Dockerfile 
+    healthCheckPath: / 
     envVars:
       - key: ACTION_ENDPOINT_URL
-        # Aponta para o serviço de ações interno
         value: "http://chatbot-actions:5055/webhook"
