@@ -1,11 +1,9 @@
 FROM rasa/rasa:3.6.10-full
 
-COPY . .
+COPY actions/ /app/actions
 
 USER root
 
 RUN pip install --no-cache-dir -r actions/requirements.txt
-
-RUN rasa train
 
 USER rasa
