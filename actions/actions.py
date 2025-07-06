@@ -236,7 +236,7 @@ class ActionAgendarConsulta(Action):
                 agendamento_id=final_appointment['id']
             )
 
-            return []
+            return [AllSlotsReset()]
         else:
             dispatcher.utter_message(response="utter_erro_agendamento")
             # Em caso de erro, limpamos os slots para recomeçar.

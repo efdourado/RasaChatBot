@@ -1,154 +1,114 @@
 # Chatbot de Agendamento - Clínica Super Saudável
 
-Bem-vindo ao Chatbot de Agendamento da Clínica Super Saudável! Este é um assistente virtual desenvolvido com Rasa para ajudar os usuários a marcar consultas, obter informações sobre especialidades médicas, exames e detalhes da clínica.
-
-## 🗄️ Novidade: Sistema de Banco de Dados
-
-Este projeto agora inclui um **sistema de banco de dados completo** usando Prisma ORM com SQLite. O banco de dados está pronto para integração com o chatbot e inclui:
-
-- ✅ **Modelos de dados** para Pacientes, Médicos, Especialidades e Agendamentos
-- ✅ **Base de dados funcional** com dados de exemplo
-- ✅ **API TypeScript** para operações CRUD
-- ✅ **Scripts de gerenciamento** para seed, migração e reset
-- ✅ **Interface gráfica** com Prisma Studio
-
-📖 **Para mais detalhes sobre o banco de dados, consulte: [DATABASE_README.md](DATABASE_README.md)**
-
-### Scripts do Banco de Dados:
-```bash
-npm run seed              # Popula o banco com dados de exemplo
-npm run prisma:studio     # Abre interface gráfica do banco
-ts-node src/example.ts    # Executa exemplos de consultas
-```
+Bem-vindo ao Chatbot de Agendamento da Clínica Super Saudável\! Este é um assistente virtual inteligente desenvolvido com Rasa, capaz de realizar agendamentos de ponta-a-ponta, responder perguntas gerais sobre saúde e muito mais, graças à sua integração com um banco de dados em tempo real e a API do Google Gemini.
 
 ## ✨ Funcionalidades Principais
 
-O chatbot é capaz de:
+O chatbot agora está mais robusto e inteligente. As principais funcionalidades incluem:
 
-* **Saudações e Despedidas:** Iniciar e encerrar conversas de forma amigável.
-* **Agendamento de Consultas:**
-    * Perguntar e entender a **especialidade médica** desejada.
-    * Coletar o **nome do paciente**.
-    * Perguntar sobre a **data e hora preferida** para a consulta.
-    * Verificar a **disponibilidade de horários** com base nas informações fornecidas (usando dados mocados).
-    * Apresentar os **horários disponíveis** e permitir que o usuário escolha um.
-    * **Confirmar os detalhes** do agendamento antes de finalizar.
-    * Simular a **realização do agendamento**, fornecendo um ID fictício.
-* **Informações sobre Especialidades:** Listar as especialidades médicas atendidas pela clínica.
-* **Informações sobre Exames:** Listar os exames disponíveis para uma determinada especialidade.
-* **Informações da Clínica:** Fornecer informações básicas sobre a clínica (atualmente com dados placeholder).
-* **Interação Básica:** Responder a agradecimentos e identificar-se como um bot.
-* **Ajuda:** Oferecer ajuda sobre o que ele pode fazer.
+  * **Integração Real com Banco de Dados (Prisma & SQLite):**
+
+      * As especialidades, médicos e horários são consultados diretamente do banco de dados, garantindo informações sempre atualizadas.
+      * Os agendamentos são **salvos em tempo real** no banco de dados ao final do fluxo.
+
+  * **Verificação de Disponibilidade em Tempo Real:**
+
+      * O bot verifica a agenda do médico no banco de dados e mostra **apenas os horários realmente livres** para a data escolhida pelo usuário.
+
+  * **Inteligência Artificial com Google Gemini:**
+
+      * **Extração Inteligente de Informações:** O chatbot consegue entender frases complexas como *"quero agendar com um cardiologista para amanhã à tarde"* e já preencher os dados do agendamento, tornando a conversa mais fluida.
+      * **Respostas a Perguntas Gerais:** Se o usuário fizer uma pergunta que não seja sobre agendamentos (ex: "o que é bom para dor de cabeça?"), o bot utiliza a IA do Gemini para fornecer uma resposta útil, mantendo o usuário engajado.
+
+  * **Fluxo de Agendamento de Ponta-a-Ponta:**
+
+      * O usuário é guiado desde a escolha da especialidade até a seleção do médico e do horário.
+      * Coleta de dados do paciente (nome e e-mail) e criação de um registro no banco de dados, se necessário.
+      * Confirmação final com todos os detalhes (médico, especialidade, data, hora) e o **ID do agendamento real** salvo no banco.
 
 ## 🚀 Como Executar o Projeto
 
-### Configuração Inicial (Primeira vez):
+### Configuração Inicial
 
 1.  **Pré-requisitos:**
-    * Python 3.x
-    * Node.js e npm
-    * Rasa Open Source (`pip install rasa`)
 
-2.  **Configurar o Banco de Dados:**
+      * Python 3.x
+      * Node.js e npm
+      * Rasa Open Source (`pip install rasa`)
+
+2.  **Variáveis de Ambiente:**
+    Crie um arquivo `.env` na raiz do projeto. Ele é **essencial** para a integração com o banco de dados e a IA do Gemini.
+
+    ```bash
+    # Conteúdo do arquivo .env
+
+    # Chave de API para o Google Gemini
+    GEMINI_API_KEY="SUA_API_KEY_AQUI"
+
+    # Caminho do banco de dados (padrão)
+    DATABASE_URL="file:./dev.db"
+    ```
+
+3.  **Configurar o Banco de Dados e Dependências:**
+    Este comando irá instalar as dependências Node.js e popular o banco de dados com dados de exemplo.
+
     ```bash
     npm install
     npm run seed
     ```
 
-### Execução do Chatbot:
+### Execução do Chatbot
 
 1.  **Treinar o Modelo Rasa:**
-    Se você fez alterações nos arquivos de dados (`data/`), configuração (`config.yml`) ou domínio (`domain.yml`), treine um novo modelo:
+    (Se você fez alterações nos arquivos `.yml`)
+
     ```bash
     rasa train
     ```
 
 2.  **Iniciar o Servidor de Ações:**
-    Em um terminal, navegue até a raiz do projeto e execute:
+    (Em um terminal)
+
     ```bash
     rasa run actions
     ```
 
 3.  **Iniciar o Servidor Rasa:**
-    Em outro terminal, navegue até a raiz do projeto e execute:
+    (Em outro terminal)
+
     ```bash
     rasa run --enable-api --cors "*"
     ```
 
 4.  **Interagir com o Chatbot:**
-    * Abra o arquivo `frontend/index.html` em seu navegador web.
-    * Ou, para interagir via linha de comando (certifique-se de que o servidor de ações está rodando):
-        ```bash
-        rasa shell
-        ```
 
-## 🗣️ Como Conversar com o Bot (Exemplos)
+      * Abra o arquivo `frontend/index.html` em seu navegador web.
+      * Ou interaja pela linha de comando: `rasa shell`.
 
-Você pode iniciar a conversa com um simples "Olá". Aqui estão alguns exemplos do que você pode dizer:
+## 🗣️ Exemplos de Conversa
 
-* "Quero marcar uma consulta"
-* "Gostaria de agendar com Cardiologia"
-* "Meu nome é Teste Feliz"
-* "Para amanhã de manhã"
-* "Quais especialidades vocês atendem?"
-* "Quais exames tem para cardiologia?"
-* "Qual o endereço de vocês?"
-* "Obrigado"
-* "Tchau"
+Você pode começar com "Olá". O bot agora entende uma variedade de comandos:
 
-## ⚠️ Limitações Atuais
+  * **Simples:** "Quero marcar uma consulta"
+  * **Direto:** "Gostaria de agendar com Cardiologia"
+  * **Inteligente (com Gemini):** "preciso de um clínico geral para hoje à tarde"
+  * **Geral (com Gemini):** "o que causa enxaqueca?"
+  * "Quais especialidades vocês atendem?"
+  * "Qual o endereço de vocês?"
 
-* **Integração Pendente:** O banco de dados está configurado mas ainda não está integrado com as ações do Rasa (próximo passo!)
-* **Dados Mocados no Bot:** As especialidades, exames e horários ainda vêm do código (`actions/actions.py`) até a integração ser completada
-* **Agendamento Simulado:** O processo de agendamento não salva ainda no banco de dados real
-* **Compreensão de Linguagem Natural (NLU):** A capacidade de entender variações de frases é limitada aos exemplos fornecidos no arquivo `data/nlu.yml`
-* **Tratamento de Datas:** A lógica de disponibilidade de horários é simplificada
-* **Sem Gerenciamento de Usuários:** Não há autenticação ou personalização baseada no usuário
-* **Sem Cancelamento/Remarcação:** O bot atualmente não suporta cancelar ou remarcar consultas
+## 🗄️ Detalhes do Banco de Dados
 
-## 💡 Próximos Passos
+O projeto utiliza Prisma ORM com SQLite para uma gestão de dados robusta e de fácil manutenção. Para mais detalhes técnicos, como schema e operações, consulte o arquivo **[DATABASE\_README.md]**.
 
-* **🔗 Integrar Banco com Rasa:** Conectar as ações do Rasa com o banco de dados Prisma
-* **📊 Dados Dinâmicos:** Puxar especialidades e médicos do banco de dados em tempo real
-* **💾 Salvar Agendamentos:** Persistir consultas no banco de dados
-* **🔍 Busca de Disponibilidade:** Implementar verificação real de horários disponíveis
-* **👤 Gestão de Pacientes:** Criar e gerenciar perfis de pacientes
+  * **Ver a base de dados em uma interface gráfica:** `npm run prisma:studio`
+  * **Resetar e popular a base com dados de exemplo:** `npm run seed`
 
-## 💡 Possíveis Melhorias Futuras
+## 💡 Próximos Passos e Melhorias
 
-* **Expandir NLU:** Adicionar mais exemplos de treinamento para melhorar a compreensão
-* **Melhorar Tratamento de Datas e Horas:** Implementar uma lógica mais robusta para datas
-* **Funcionalidade de Cancelamento/Remarcação:** Permitir que os usuários gerenciem seus agendamentos
-* **Autenticação de Usuário:** Implementar um sistema de login
-* **Informações Dinâmicas da Clínica:** Puxar informações da clínica de uma fonte atualizável
-* **Fluxos de Conversa Mais Robustos:** Melhorar o tratamento de erros
-* **Internacionalização:** Suporte a múltiplos idiomas
+  * **Cancelamento e Remarcação:** Implementar um fluxo para que os usuários possam cancelar ou alterar seus agendamentos.
+  * **Autenticação de Usuário:** Criar um sistema de login para que pacientes recorrentes tenham uma experiência personalizada.
+  * **Histórico de Consultas:** Permitir que o usuário veja suas consultas passadas e futuras.
 
----
+-----
 
-Divirta-se interagindo com o Chatbot da Clínica Super Saudável!
-
-
-
-
----
-
-.env:
-
-- GEMINI_API_KEY=SUA_API_KEY_AQUI
-- DATABASE_URL=file:./dev.db
-
----
-
-.gitignore:
-
-- .venv/
-- .rasa/
-
-- node_modules/
-
-- .env
-
-- models/*.tar.gz
-- dist/
-- prisma/dev.db
+Espero que este novo `README.md` ajude a refletir o excelente trabalho que vocês fizeram no projeto\! Se precisar de mais alguma coisa, é só pedir.
