@@ -10,4 +10,4 @@ RUN rasa train
 
 USER rasa
 
-CMD rasa run --enable-api --cors "*" -p $PORT
+CMD ["/bin/sh", "-c", "rasa run --enable-api --cors \"*\" --debug -p $PORT"]
