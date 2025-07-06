@@ -14,8 +14,8 @@ services:
     name: chatbot-db-api
     env: node # Usando o ambiente Node.js nativo do Render
     plan: free
-    buildCommand: "npm install && npm run prisma:generate && npm run build"
-    startCommand: "node dist/service.js" # Comando para iniciar sua API
+    buildCommand: "npm install && npx prisma migrate deploy && npm run prisma:generate && npm run build"
+    startCommand: "node dist/service.js"
     healthCheckPath: / # O Render vai verificar se sua API está no ar
     envVars:
       - key: DATABASE_URL
@@ -36,7 +36,7 @@ services:
     healthCheckPath: /health
 
     dockerCommand: "rasa run actions" # Use dockerCommand para sobrescrever o CMD
-    
+
     envVars:
       - key: GEMINI_API_KEY
         sync: false # Crie esta variável de ambiente no dashboard do Render
