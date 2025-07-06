@@ -1,17 +1,21 @@
 # 1. Usar a imagem oficial do Rasa como base.
-# Ela já vem com Python, um ambiente virtual e um usuário não-root configurado.
 FROM rasa/rasa:3.6.10-full
 
-# 2. Copiar todos os arquivos do seu projeto para o diretório de trabalho no container.
-# O diretório de trabalho padrão na imagem base é /app.
+# 2. Copiar todos os arquivos do seu projeto para o diretório de trabalho (/app).
 COPY . .
 
-# 3. Instalar as dependências Python para suas actions.
-# O usuário da imagem base já tem as permissões corretas para fazer isso.
-RUN pip install -r actions/requirements.txt
+# 3. Mudar para o usuário ROOT para poder instalar pacotes.
+USER root
 
-# 4. Treinar o modelo Rasa.
-# Este passo é necessário para o chatbot-rasa-server.
+# 4. Instalar as dependências Python para as actions.
+#    O --no-cache-dir é uma boa prática para manter a imagem menor.
+RUN pip install --no-cache-dir -r actions/requirements.txt
+
+# 5. Treinar o modelo Rasa (ainda como root, que tem permissão de escrita).
 RUN rasa train
 
-# 5. O comando para iniciar o serviço será definido no render.yaml
+# 6. Mudar de volta para o usuário padrão e seguro do Rasa.
+#    Isso garante que seu aplicativo não execute com privilégios de root.
+USER rasa
+
+# O comando para iniciar o serviço será pego do render.yaml
