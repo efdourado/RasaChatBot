@@ -38,7 +38,7 @@ services:
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
-    startCommand: "rasa run --enable-api --cors \"*\" -p $PORT"
+    startCommand: "rasa run --enable-api --cors '*' -p $PORT"
     healthCheckPath: /health
     envVars:
       - key: ACTION_ENDPOINT_URL
