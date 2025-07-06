@@ -1,54 +1,55 @@
-services:
-  # Serviço 1: Banco de Dados PostgreSQL Gratuito
-  # A Render vai gerenciar este banco de dados para você.
-  - type: pserv
-    name: chatbot-postgres-db
-    plan: free
-    region: oregon # Você pode escolher a região mais próxima
+# Use a top-level 'databases' key to define the PostgreSQL instance.
+# This is the correct way to create a managed database on Render.
+databases:
+  - name: chatbot-postgres-db
+    plan: free # The 'free' plan is suitable for development and small projects.
+    region: oregon
 
-  # Serviço 2: API do Banco de Dados (Node.js)
-  # Conecta-se ao banco de dados PostgreSQL criado acima.
+services:
+  # Service 1: API do Banco de Dados (Node.js)
+  # This service now correctly references the database defined above.
   - type: web
     name: chatbot-db-api
-    env: node # Usando o ambiente Node.js nativo do Render
+    env: node 
     plan: free
+    region: oregon
     buildCommand: "npm install && npx prisma migrate deploy && npm run prisma:generate && npm run build"
     startCommand: "node dist/service.js"
-    healthCheckPath: / # O Render vai verificar se sua API está no ar
+    healthCheckPath: / 
     envVars:
       - key: DATABASE_URL
-        fromService:
-          type: pserv
+        # 'fromDatabase' is the correct way to get the connection string.
+        fromDatabase:
           name: chatbot-postgres-db
           property: connectionString
-      - key: PORT # O Render define a porta automaticamente
+      - key: PORT 
         value: 3000
 
-  # Serviço 3: Servidor de Ações do Rasa (Python)
+  # Service 2: Servidor de Ações do Rasa (Python)
   - type: web
     name: chatbot-actions
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile # Usando seu Dockerfile existente
+    region: oregon
+    dockerfilePath: ./Dockerfile 
     healthCheckPath: /health
-    # Comando para iniciar especificamente o servidor de ações
     dockerCommand: "rasa run actions"
     envVars:
       - key: GEMINI_API_KEY
-        sync: false # Crie esta variável de ambiente no dashboard do Render
+        sync: false # Keep this as false for security.
       - key: DATABASE_API_URL
-        # Comunicação interna entre os serviços do Render
+        # Internal services can talk to each other using their names and ports.
         value: "http://chatbot-db-api:3000"
 
-  # Serviço 4: Servidor Principal do Rasa (Python)
+  # Service 3: Servidor Principal do Rasa (Python)
   - type: web
     name: chatbot-rasa-server
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile # Usando o mesmo Dockerfile
-    # Este serviço usará o comando CMD do Dockerfile para iniciar
-    healthCheckPath: / # Verifica se o servidor Rasa está respondendo
+    region: oregon
+    dockerfilePath: ./Dockerfile 
+    healthCheckPath: / 
+    dockerCommand: "rasa run --enable-api --cors '*'" # Added arguments to match local setup
     envVars:
       - key: ACTION_ENDPOINT_URL
-        # Aponta para o serviço de ações interno
         value: "http://chatbot-actions:5055/webhook"
