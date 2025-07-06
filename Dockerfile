@@ -10,4 +10,14 @@ RUN rasa train
 
 USER rasa
 
-CMD ["sh", "-c", "rasa run --enable-api --cors '*' -p ${PORT:-10000}"]
+
+WORKDIR /app
+COPY . .
+
+EXPOSE 8080
+
+COPY entrypoint.sh /app/entrypoint.sh
+
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
