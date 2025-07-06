@@ -235,10 +235,12 @@ class ActionAgendarConsulta(Action):
                 horario_escolhido=tracker.get_slot('horario_escolhido'),
                 agendamento_id=final_appointment['id']
             )
+
+            return []
         else:
             dispatcher.utter_message(response="utter_erro_agendamento")
-            
-        return [AllSlotsReset()]
+            # Em caso de erro, limpamos os slots para recomeçar.
+            return [AllSlotsReset()]
 
 
 WEEKDAY_MAP = {
@@ -269,18 +271,14 @@ class ValidateFormularioAgendamento(FormValidationAction):
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
-    ) -> List[Dict[Text, Any]]: # Changed return type hint to List[Dict[Text, Any]] to allow multiple events
+    ) -> Dict[Text, Any]: # A anotação de tipo foi corrigida para o padrão do Rasa
         """Valida a escolha do horário de forma flexível."""
         horarios_disponiveis = tracker.get_slot("horarios_disponiveis")
         user_text = tracker.latest_message.get("text", "").lower()
 
-        # Initialize list of events to return
-        events_to_return: List[Any] = [] # Use List[Any] to allow Event objects
-
         if not horarios_disponiveis:
             dispatcher.utter_message(text="Desculpe, parece que não tenho horários para validar.")
-            events_to_return.append(SlotSet("horario_escolhido", None))
-            return events_to_return
+            return {"horario_escolhido": None}
 
         validated_horario = None
 
@@ -316,37 +314,14 @@ class ValidateFormularioAgendamento(FormValidationAction):
                         break
 
         if validated_horario:
-            events_to_return.append(SlotSet("horario_escolhido", validated_horario))
-            
-            # Check if all required slots are now filled.
-            form_config = domain.get("forms", {}).get("formulario_agendamento", {})
-            required_slots = form_config.get("required_slots", [])
+            # Apenas retorna o slot validado. O Rasa cuidará do resto.
+            return {"horario_escolhido": validated_horario}
+        else:
+            dispatcher.utter_message(
+                text=f"Não consegui entender sua escolha. Por favor, selecione um dos horários a seguir: {', '.join(horarios_disponiveis)}"
+            )
+            return {"horario_escolhido": None}
 
-            all_slots_filled = True
-            current_tracker_slots = tracker.current_slot_values()
-            for slot in required_slots:
-                if slot == "horario_escolhido":
-                    continue # This slot is being set now
-                if current_tracker_slots.get(slot) is None:
-                    all_slots_filled = False
-                    break
-            
-            if all_slots_filled:
-                dispatcher.utter_message(text="Quase lá! Processando seu agendamento...")
-                # When all slots are filled, set requested_slot to None.
-                # This explicitly signals the form's completion to Rasa Core.
-                events_to_return.append(SlotSet("requested_slot", None))
-                # Trigger the next action. This should now work as part of the event list.
-                events_to_return.append(FollowupAction("action_agendar_consulta"))
-            
-            return events_to_return
-
-        # If nothing works, ask the user to try again
-        dispatcher.utter_message(
-            text=f"Não consegui entender sua escolha. Por favor, selecione um dos horários a seguir: {', '.join(horarios_disponiveis)}"
-        )
-        events_to_return.append(SlotSet("horario_escolhido", None))
-        return events_to_return
 
     async def validate_data_preferida(
         self,
