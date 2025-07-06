@@ -1,48 +1,57 @@
 services:
-  # Serviço 1: API do Banco de Dados (Node.js)
-  # Este serviço roda o servidor 'npm run start' a partir do seu Dockerfile.node
+  # Serviço 1: Banco de Dados PostgreSQL Gratuito
+  # A Render vai gerenciar este banco de dados para você.
+  - type: pserv
+    name: chatbot-postgres-db
+    plan: free
+    postgres:
+      version: 14 # Versão do PostgreSQL
+    region: oregon # Você pode escolher a região mais próxima
+
+  # Serviço 2: API do Banco de Dados (Node.js)
+  # Conecta-se ao banco de dados PostgreSQL criado acima.
   - type: web
     name: chatbot-db-api
-    env: docker
-    plan: free # Use o plano gratuito da Render
-    dockerfilePath: ./Dockerfile.node
-    # A Render detecta a porta 3000 exposta no Dockerfile e faz o roteamento
-    healthCheckPath: /
+    env: node # Usando o ambiente Node.js nativo do Render
+    plan: free
+    buildCommand: "npm install && npm run prisma:generate && npm run build"
+    startCommand: "node dist/service.js" # Comando para iniciar sua API
+    healthCheckPath: / # O Render vai verificar se sua API está no ar
     envVars:
       - key: DATABASE_URL
-        # A Render fornece um disco persistente para armazenar seu arquivo de banco de dados
-        value: "file:/var/data/dev.db"
-    disk:
-      name: sqlite-data
-      mountPath: /var/data
-      sizeGB: 1
+        fromService:
+          type: pserv
+          name: chatbot-postgres-db
+          property: connectionString
+      - key: PORT # O Render define a porta automaticamente
+        value: 3000
 
-  # Serviço 2: Servidor de Ações do Rasa (Python)
-  # Roda o comando 'rasa run actions'
+  # Serviço 3: Servidor de Ações do Rasa (Python)
   - type: web
     name: chatbot-actions
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile
-    startCommand: "rasa run actions" # Comando explícito para iniciar as ações
+    dockerfilePath: ./Dockerfile # Usando seu Dockerfile existente
+    # O startCommand foi removido. O comando será lido do Dockerfile.
     healthCheckPath: /health
+
+    dockerCommand: "rasa run actions" # Use dockerCommand para sobrescrever o CMD
+    
     envVars:
       - key: GEMINI_API_KEY
-        # IMPORTANTE: Você deve criar esta variável no Dashboard da Render!
-        sync: false
+        sync: false # Crie esta variável de ambiente no dashboard do Render
       - key: DATABASE_API_URL
-        # Comunicação interna entre serviços na Render
+        # Comunicação interna entre os serviços do Render
         value: "http://chatbot-db-api:3000"
 
-  # Serviço 3: Servidor Principal do Rasa (Python)
-  # Roda o chatbot principal e expõe a API para o frontend
+  # Serviço 4: Servidor Principal do Rasa (Python)
   - type: web
     name: chatbot-rasa-server
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile
-    startCommand: "rasa run --enable-api --cors \"*\"" # Comando para iniciar o Rasa
-    healthCheckPath: /
+    dockerfilePath: ./Dockerfile # Usando o mesmo Dockerfile
+    # O startCommand foi removido. O comando será lido do Dockerfile.
+    healthCheckPath: / # Verifica se o servidor Rasa está respondendo
     envVars:
       - key: ACTION_ENDPOINT_URL
         # Aponta para o serviço de ações interno

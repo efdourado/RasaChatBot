@@ -6,3 +6,5 @@ COPY . .
 RUN pip install -r actions/requirements.txt
 
 RUN rasa train
+
+CMD ["run", "--enable-api", "--cors", "*"]
