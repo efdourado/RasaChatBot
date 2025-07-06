@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInput = document.getElementById("user-input");
   const sendButton = document.getElementById("send-button");
   const chatMessages = document.getElementById("chat-messages");
-
-  const rasaServerUrl = "http://localhost:5005/webhooks/rest/webhook";
+  
+  const rasaServerUrl = "https://chatbot-rasa-server-jax2.onrender.com/webhooks/rest/webhook";
 
   function addMessage(text, sender) {
     const messageDiv = document.createElement("div");

@@ -1,13 +1,9 @@
-# Use a top-level 'databases' key to define the PostgreSQL instance.
-# This is the correct way to create a managed database on Render.
 databases:
   - name: chatbot-postgres-db
-    plan: free # The 'free' plan is suitable for development and small projects.
+    plan: free
     region: oregon
 
 services:
-  # Service 1: API do Banco de Dados (Node.js)
-  # This service now correctly references the database defined above.
   - type: web
     name: chatbot-db-api
     env: node 
@@ -18,14 +14,12 @@ services:
     healthCheckPath: / 
     envVars:
       - key: DATABASE_URL
-        # 'fromDatabase' is the correct way to get the connection string.
         fromDatabase:
           name: chatbot-postgres-db
           property: connectionString
       - key: PORT 
         value: 3000
 
-  # Service 2: Servidor de Ações do Rasa (Python)
   - type: web
     name: chatbot-actions
     env: docker
@@ -36,12 +30,10 @@ services:
     dockerCommand: "rasa run actions"
     envVars:
       - key: GEMINI_API_KEY
-        sync: false # Keep this as false for security.
+        sync: false
       - key: DATABASE_API_URL
-        # Internal services can talk to each other using their names and ports.
         value: "http://chatbot-db-api:3000"
 
-  # Service 3: Servidor Principal do Rasa (Python)
   - type: web
     name: chatbot-rasa-server
     env: docker
@@ -49,7 +41,7 @@ services:
     region: oregon
     dockerfilePath: ./Dockerfile 
     healthCheckPath: / 
-    dockerCommand: "rasa run --enable-api --cors '*'" # Added arguments to match local setup
+    dockerCommand: "rasa run --enable-api --cors '*'"
     envVars:
       - key: ACTION_ENDPOINT_URL
         value: "http://chatbot-actions:5055/webhook"
