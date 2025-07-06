@@ -13,6 +13,7 @@ services:
   - type: web
     name: chatbot-db-api
     env: node # Usando o ambiente Node.js nativo do Render
+    addon: postgres
     plan: free
     buildCommand: "npm install && npx prisma migrate deploy && npm run prisma:generate && npm run build"
     startCommand: "node dist/service.js"
