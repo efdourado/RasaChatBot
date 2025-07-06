@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r actions/requirements.txt
 
 USER rasa
 
-CMD ["run", "actions", "-p", "$PORT"]
+CMD ["rasa", "run", "actions", "-p", "$PORT"]
