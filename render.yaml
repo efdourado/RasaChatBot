@@ -4,24 +4,24 @@ services:
   - type: pserv
     name: chatbot-postgres-db
     plan: free
-    region: oregon 
+    region: oregon # Você pode escolher a região mais próxima
 
   # Serviço 2: API do Banco de Dados (Node.js)
   # Conecta-se ao banco de dados PostgreSQL criado acima.
   - type: web
     name: chatbot-db-api
-    env: node 
+    env: node # Usando o ambiente Node.js nativo do Render
     plan: free
     buildCommand: "npm install && npx prisma migrate deploy && npm run prisma:generate && npm run build"
     startCommand: "node dist/service.js"
-    healthCheckPath: / 
+    healthCheckPath: / # O Render vai verificar se sua API está no ar
     envVars:
       - key: DATABASE_URL
         fromService:
           type: pserv
           name: chatbot-postgres-db
           property: connectionString
-      - key: PORT 
+      - key: PORT # O Render define a porta automaticamente
         value: 3000
 
   # Serviço 3: Servidor de Ações do Rasa (Python)
@@ -29,13 +29,15 @@ services:
     name: chatbot-actions
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile 
+    dockerfilePath: ./Dockerfile # Usando seu Dockerfile existente
     healthCheckPath: /health
+    # Comando para iniciar especificamente o servidor de ações
     dockerCommand: "rasa run actions"
     envVars:
       - key: GEMINI_API_KEY
-        sync: false 
+        sync: false # Crie esta variável de ambiente no dashboard do Render
       - key: DATABASE_API_URL
+        # Comunicação interna entre os serviços do Render
         value: "http://chatbot-db-api:3000"
 
   # Serviço 4: Servidor Principal do Rasa (Python)
@@ -43,8 +45,10 @@ services:
     name: chatbot-rasa-server
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile 
-    healthCheckPath: / 
+    dockerfilePath: ./Dockerfile # Usando o mesmo Dockerfile
+    # Este serviço usará o comando CMD do Dockerfile para iniciar
+    healthCheckPath: / # Verifica se o servidor Rasa está respondendo
     envVars:
       - key: ACTION_ENDPOINT_URL
+        # Aponta para o serviço de ações interno
         value: "http://chatbot-actions:5055/webhook"
