@@ -27,18 +27,22 @@ rules:
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
 
-- rule: Submit formulario_agendamento após preenchimento de todos os slots
-  condition:
-  - active_loop: formulario_agendamento
-  - slot_was_set:
-    - horario_escolhido
-  steps:
-  - active_loop: null
-  - action: action_agendar_consulta
-
 - rule: Lidar com perguntas gerais (fallback)
   condition:
     - active_loop: null
   steps:
   - intent: nlu_fallback
   - action: action_handle_general_question
+
+
+
+
+
+- rule: Handle formulario_agendamento submission
+  condition:
+  - active_loop: null
+  - slot_was_set:
+    - horario_escolhido
+  steps:
+  - action: action_agendar_consulta
+  - action: action_listen

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet, AllSlotsReset, FollowupAction
+from rasa_sdk.events import SlotSet, AllSlotsReset, FollowupAction, ActiveLoop
 from rasa_sdk.types import DomainDict
 
 import google.generativeai as genai
@@ -67,7 +67,7 @@ class ActionExtractInfoWithGemini(Action):
             return [FollowupAction("formulario_agendamento")]
 
         user_message = tracker.latest_message.get('text')
-        # Updated prompt to extract more relevant information upfront
+
         prompt = f"""
         Analise a frase do usuário e extraia as seguintes informações em formato JSON. Se uma informação não estiver presente, use "null".
         Entidades: especialidade, nome_doutor, data_preferida, nome_paciente, email.
@@ -95,8 +95,7 @@ class ActionExtractInfoWithGemini(Action):
                 dispatcher.utter_message(text="Entendi! Vamos iniciar o agendamento com essas informações.")
                 return slots_to_set + [FollowupAction("formulario_agendamento")]
             else:
-                # If no specific info is extracted, let the general question handler respond.
-                # This ensures the bot doesn't get stuck if no relevant slots are found.
+                
                 return [FollowupAction("action_handle_general_question")]
         except json.JSONDecodeError as e:
             logger.error(f"Erro ao decodificar JSON do Gemini na extração: {e}. Resposta bruta: {response.text}")
@@ -262,53 +261,91 @@ def _find_next_weekday(start_date: datetime, target_weekday: int) -> datetime:
 class ValidateFormularioAgendamento(FormValidationAction):
     def name(self) -> Text:
         return "validate_formulario_agendamento"
-
+        
     async def validate_horario_escolhido(
         self,
         slot_value: Any,
         dispatcher: CollectingDispatcher,
         tracker: Tracker,
         domain: DomainDict,
-    ) -> Dict[Text, Any]:
+    ) -> List[Dict[Text, Any]]: # Changed return type hint to List[Dict[Text, Any]] to allow multiple events
         """Valida a escolha do horário de forma flexível."""
         horarios_disponiveis = tracker.get_slot("horarios_disponiveis")
         user_text = tracker.latest_message.get("text", "").lower()
 
+        # Initialize list of events to return
+        events_to_return: List[Any] = [] # Use List[Any] to allow Event objects
+
         if not horarios_disponiveis:
-            # Caso de segurança, não deveria acontecer se validate_data_preferida funcionou
             dispatcher.utter_message(text="Desculpe, parece que não tenho horários para validar.")
-            return {"horario_escolhido": None}
+            events_to_return.append(SlotSet("horario_escolhido", None))
+            return events_to_return
+
+        validated_horario = None
 
         # 1. Tenta encontrar o horário exato (ex: "15:00")
         for horario in horarios_disponiveis:
             if horario in user_text:
-                return {"horario_escolhido": horario}
+                validated_horario = horario
+                break
 
-        # 2. Tenta encontrar números no texto (ex: "às 9h", "9 horas")
-        numeros_encontrados = re.findall(r'\d+', user_text)
-        if numeros_encontrados:
-            for num_str in numeros_encontrados:
-                # Procura por horários que comecem com o número encontrado (ex: "9" em "09:00")
-                for horario in horarios_disponiveis:
-                    if horario.startswith(num_str.zfill(2)): # zfill(2) transforma '9' em '09'
-                        return {"horario_escolhido": horario}
+        if not validated_horario:
+            # 2. Tenta encontrar números no texto (ex: "às 9h", "9 horas")
+            numeros_encontrados = re.findall(r'\d+', user_text)
+            if numeros_encontrados:
+                for num_str in numeros_encontrados:
+                    for horario in horarios_disponiveis:
+                        if horario.startswith(num_str.zfill(2)): # zfill(2) transforma '9' em '09'
+                            validated_horario = horario
+                            break
+                    if validated_horario:
+                        break
 
-        # 3. Tenta encontrar por posição (ex: "o primeiro", "opção 2")
-        posicoes = {
-            "primeiro": 0, "primeira": 0, "1": 0,
-            "segundo": 1, "segunda": 1, "2": 1,
-            "terceiro": 2, "terceira": 2, "3": 2,
-        }
-        for palavra, index in posicoes.items():
-            if palavra in user_text:
-                if len(horarios_disponiveis) > index:
-                    return {"horario_escolhido": horarios_disponiveis[index]}
+        if not validated_horario:
+            # 3. Tenta encontrar por posição (ex: "o primeiro", "opção 2")
+            posicoes = {
+                "primeiro": 0, "primeira": 0, "1": 0,
+                "segundo": 1, "segunda": 1, "2": 1,
+                "terceiro": 2, "terceira": 2, "3": 2,
+            }
+            for palavra, index in posicoes.items():
+                if palavra in user_text:
+                    if len(horarios_disponiveis) > index:
+                        validated_horario = horarios_disponiveis[index]
+                        break
 
-        # Se nada funcionar, pede para o usuário tentar de novo
+        if validated_horario:
+            events_to_return.append(SlotSet("horario_escolhido", validated_horario))
+            
+            # Check if all required slots are now filled.
+            form_config = domain.get("forms", {}).get("formulario_agendamento", {})
+            required_slots = form_config.get("required_slots", [])
+
+            all_slots_filled = True
+            current_tracker_slots = tracker.current_slot_values()
+            for slot in required_slots:
+                if slot == "horario_escolhido":
+                    continue # This slot is being set now
+                if current_tracker_slots.get(slot) is None:
+                    all_slots_filled = False
+                    break
+            
+            if all_slots_filled:
+                dispatcher.utter_message(text="Quase lá! Processando seu agendamento...")
+                # When all slots are filled, set requested_slot to None.
+                # This explicitly signals the form's completion to Rasa Core.
+                events_to_return.append(SlotSet("requested_slot", None))
+                # Trigger the next action. This should now work as part of the event list.
+                events_to_return.append(FollowupAction("action_agendar_consulta"))
+            
+            return events_to_return
+
+        # If nothing works, ask the user to try again
         dispatcher.utter_message(
             text=f"Não consegui entender sua escolha. Por favor, selecione um dos horários a seguir: {', '.join(horarios_disponiveis)}"
         )
-        return {"horario_escolhido": None}
+        events_to_return.append(SlotSet("horario_escolhido", None))
+        return events_to_return
 
     async def validate_data_preferida(
         self,
