@@ -1,50 +1,49 @@
-# render.yaml
-
 services:
-  # 1. Serviço do Banco de Dados (Node.js)
+  # Serviço 1: API do Banco de Dados (Node.js)
+  # Este serviço roda o servidor 'npm run start' a partir do seu Dockerfile.node
   - type: web
-    name: chatbot-db-service
-    env: node
-    plan: free
-    dockerfilePath: ./Dockerfile.node
-    dockerContext: .
+    name: chatbot-db-api
+    env: docker
+    plan: free # Use o plano gratuito da Render
+    dockerfile: ./Dockerfile.node
+    # A Render detecta a porta 3000 exposta no Dockerfile e faz o roteamento
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
-        value: "file:./dev.db"
+        # A Render fornece um disco persistente para armazenar seu arquivo de banco de dados
+        value: "file:/var/data/dev.db"
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
 
-
+  # Serviço 2: Servidor de Ações do Rasa (Python)
+  # Roda o comando 'rasa run actions'
   - type: web
     name: chatbot-actions
-    env: python
+    env: docker
     plan: free
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-
-    startCommand: "rasa run actions"
+    dockerfile: ./Dockerfile
+    startCommand: "rasa run actions" # Comando explícito para iniciar as ações
     healthCheckPath: /health
     envVars:
-      - key: DB_SERVICE_URL
-        fromService:
-          type: web
-          name: chatbot-db-service
-          property: url
       - key: GEMINI_API_KEY
-        fromSecretFile: .env
+        # IMPORTANTE: Você deve criar esta variável no Dashboard da Render!
+        sync: false
+      - key: DATABASE_API_URL
+        # Comunicação interna entre serviços na Render
+        value: "http://chatbot-db-api:3000"
 
-
+  # Serviço 3: Servidor Principal do Rasa (Python)
+  # Roda o chatbot principal e expõe a API para o frontend
   - type: web
-    name: chatbot-rasa
-    env: python
+    name: chatbot-rasa-server
+    env: docker
     plan: free
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-
-    startCommand: "rasa run --enable-api --cors \"*\""
+    dockerfile: ./Dockerfile
+    startCommand: "rasa run --enable-api --cors \"*\"" # Comando para iniciar o Rasa
     healthCheckPath: /
     envVars:
-      - key: ACTIONS_SERVER_URL
-        fromService:
-          type: web
-          name: chatbot-actions
-          property: url
+      - key: ACTION_ENDPOINT_URL
+        # Aponta para o serviço de ações interno
+        value: "http://chatbot-actions:5055/webhook"
