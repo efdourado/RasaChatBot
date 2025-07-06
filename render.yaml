@@ -4,16 +4,15 @@ services:
   - type: pserv
     name: chatbot-postgres-db
     plan: free
-    postgres:
-      version: 14 # Versão do PostgreSQL
     region: oregon # Você pode escolher a região mais próxima
+    # A sintaxe correta para definir o tipo de banco de dados
+    addon: postgres
 
   # Serviço 2: API do Banco de Dados (Node.js)
   # Conecta-se ao banco de dados PostgreSQL criado acima.
   - type: web
     name: chatbot-db-api
     env: node # Usando o ambiente Node.js nativo do Render
-    addon: postgres
     plan: free
     buildCommand: "npm install && npx prisma migrate deploy && npm run prisma:generate && npm run build"
     startCommand: "node dist/service.js"
@@ -33,11 +32,9 @@ services:
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile # Usando seu Dockerfile existente
-    # O startCommand foi removido. O comando será lido do Dockerfile.
     healthCheckPath: /health
-
-    dockerCommand: "rasa run actions" # Use dockerCommand para sobrescrever o CMD
-
+    # Comando para iniciar especificamente o servidor de ações
+    dockerCommand: "rasa run actions"
     envVars:
       - key: GEMINI_API_KEY
         sync: false # Crie esta variável de ambiente no dashboard do Render
@@ -51,7 +48,7 @@ services:
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile # Usando o mesmo Dockerfile
-    # O startCommand foi removido. O comando será lido do Dockerfile.
+    # Este serviço usará o comando CMD do Dockerfile para iniciar
     healthCheckPath: / # Verifica se o servidor Rasa está respondendo
     envVars:
       - key: ACTION_ENDPOINT_URL
