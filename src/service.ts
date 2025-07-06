@@ -1,21 +1,20 @@
+import express from 'express';
 import { db } from './database';
-import { Doctor, Patient, Specialty } from '@prisma/client';
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+const app = express();
+// A porta será fornecida pelo Render, ou 3000 como padrão
+const port = process.env.PORT || 3000;
 
-const printJSON = (data: any) => {
-  console.log(JSON.stringify(data, (key, value) => 
-    typeof value === 'bigint' ? value.toString() : value
-  ));
-  process.exit(0);
+app.use(express.json());
+
+// Função auxiliar para serializar BigInt, evitando erros no JSON
+(BigInt.prototype as any).toJSON = function () {
+    return this.toString();
 };
 
-const args = process.argv.slice(2);
-const command = args[0];
-
-
+// --- Funções Auxiliares ---
 function generateTimeSlots(start: string, end: string, intervalMinutes: number): string[] {
     const slots = [];
     const [startHour, startMinute] = start.split(':').map(Number);
@@ -34,103 +33,108 @@ function generateTimeSlots(start: string, end: string, intervalMinutes: number):
     return slots;
 }
 
+// --- Rotas da API ---
 
-async function main() {
-  switch (command) {
-    case 'getSpecialties':
-      const specialties = await db.getAllSpecialties();
-      printJSON(specialties);
-      break;
+// Rota para Health Check do Render
+app.get('/', (req, res) => {
+  res.status(200).send('API do Chatbot DB está saudável!');
+});
 
-    case 'getDoctorsBySpecialty':
-      const specialtyId = parseInt(args[1], 10);
-      const doctors = await db.getDoctorsBySpecialty(specialtyId);
-      printJSON(doctors);
-      break;
+// GET /specialties - Retorna todas as especialidades
+app.get('/specialties', async (req, res, next) => {
+    try {
+        const specialties = await db.getAllSpecialties();
+        res.json(specialties);
+    } catch (error) {
+        next(error);
+    }
+});
 
-    case 'getAppointmentsByDoctorAndDate':
-        if (args.length < 2) {
-          throw new Error("Doctor ID and Date are required.");
+// GET /doctors/specialty/:specialtyId - Retorna médicos por ID da especialidade
+app.get('/doctors/specialty/:specialtyId', async (req, res, next) => {
+    try {
+        const specialtyId = parseInt(req.params.specialtyId, 10);
+        if (isNaN(specialtyId)) {
+            return res.status(400).json({ error: 'ID da especialidade inválido.' });
         }
-        const doctorId = parseInt(args[0], 10);
-        const dateStr = args[1]; // Espera o formato "YYYY-MM-DD"
-        
-        // Cria o intervalo de data para o dia inteiro
-        const startDate = new Date(`${dateStr}T00:00:00.000Z`);
-        const endDate = new Date(`${dateStr}T23:59:59.999Z`);
+        const doctors = await db.getDoctorsBySpecialty(specialtyId);
+        res.json(doctors);
+    } catch (error) {
+        next(error);
+    }
+});
 
-        const appointments = await prisma.appointment.findMany({
-            where: {
-                doctorId: doctorId,
-                dateTime: {
-                    gte: startDate, // "greater than or equal to" o início do dia
-                    lte: endDate,   // "less than or equal to" o fim do dia
-                }
-            }
-        });
-        printJSON(appointments);
-        break;
-    
-    case 'findOrCreatePatient':
-      const email = args[1];
-      const name = args[2];
-      let patient = await db.getPatientByEmail(email);
-      if (!patient) {
-        patient = await db.createPatient({ email, name });
-      }
-      printJSON(patient);
-      break;
+// GET /doctors/:doctorId/available-slots?date=YYYY-MM-DD - Retorna horários livres
+app.get('/doctors/:doctorId/available-slots', async (req, res, next) => {
+    try {
+        const doctorId = parseInt(req.params.doctorId, 10);
+        const dateStr = req.query.date as string;
 
-    case 'createAppointment':
-      const data = JSON.parse(args[1]);
-      const appointment = await db.createAppointment({
-        patientId: data.patientId,
-        doctorId: data.doctorId,
-        dateTime: new Date(data.dateTime),
-        notes: `Agendado via Chatbot para ${data.patientName}`
-      });
-      printJSON(appointment);
-      break;
-
-    case 'getAvailableSlotsByDoctorAndDate': {
-        if (args.length < 3) {
-          throw new Error("Doctor ID and Date are required.");
+        if (isNaN(doctorId)) {
+            return res.status(400).json({ error: 'ID do médico inválido.' });
         }
-        const doctorId = parseInt(args[1], 10);
-        const dateStr = args[2]; // Formato "YYYY-MM-DD"
-        
+        if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            return res.status(400).json({ error: 'Parâmetro de data é obrigatório no formato YYYY-MM-DD.' });
+        }
+
         const targetDate = new Date(`${dateStr}T12:00:00.000Z`);
         const dayOfWeek = targetDate.getUTCDay();
 
-        // 1. Buscar a disponibilidade do médico para o dia da semana
         const availability = await db.getAvailabilityByDoctor(doctorId, dayOfWeek);
-
         if (!availability) {
-            printJSON([]); // Médico não trabalha neste dia
-            return;
+            return res.json([]); // Médico não trabalha neste dia
         }
 
-        // 2. Gerar todos os horários de trabalho possíveis (a cada 60 min)
         const allPossibleSlots = generateTimeSlots(availability.startTime, availability.endTime, 60);
-
-        // 3. Buscar agendamentos existentes para o médico na data específica
         const appointments = await db.getAppointmentsByDoctorForDate(doctorId, targetDate);
         const bookedSlots = appointments.map(a => a.dateTime.toISOString().substring(11, 16));
-        
-        // 4. Filtrar e retornar apenas os horários disponíveis
         const availableSlots = allPossibleSlots.filter(slot => !bookedSlots.includes(slot));
         
-        printJSON(availableSlots);
-        break;
+        res.json(availableSlots);
+    } catch (error) {
+        next(error);
     }
+});
 
-    default:
-      console.error('Comando inválido');
-      process.exit(1);
-} }
+// POST /patients - Encontra ou cria um paciente
+app.post('/patients', async (req, res, next) => {
+    try {
+        const { email, name } = req.body;
+        if (!email || !name) {
+            return res.status(400).json({ error: 'Email e nome são obrigatórios.' });
+        }
+        let patient = await db.getPatientByEmail(email);
+        if (!patient) {
+            patient = await db.createPatient({ email, name });
+        }
+        res.status(patient ? 200 : 201).json(patient);
+    } catch (error) {
+        next(error);
+    }
+});
 
-main().catch(async (e) => {
-  console.error(e);
-  await db.disconnect();
-  process.exit(1);
+// POST /appointments - Cria um novo agendamento
+app.post('/appointments', async (req, res, next) => {
+    try {
+        const data = req.body;
+        const appointment = await db.createAppointment({
+            patientId: data.patientId,
+            doctorId: data.doctorId,
+            dateTime: new Date(data.dateTime)
+        });
+        res.status(201).json(appointment);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Middleware para tratamento de erros
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
+});
+
+// Inicia o servidor
+app.listen(port, () => {
+    console.log(`Servidor da API rodando na porta ${port}`);
 });
