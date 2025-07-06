@@ -24,7 +24,6 @@ services:
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile.actions
-    startCommand: "rasa run actions -p $PORT"
     healthCheckPath: /health
     envVars:
       - key: GEMINI_API_KEY
@@ -38,7 +37,6 @@ services:
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
-    startCommand: "rasa run --enable-api --cors '*' -p $PORT"
     healthCheckPath: /health
     envVars:
       - key: ACTION_ENDPOINT_URL

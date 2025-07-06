@@ -7,3 +7,5 @@ USER root
 RUN pip install --no-cache-dir -r actions/requirements.txt
 
 USER rasa
+
+CMD ["rasa", "run", "actions", "-p", "$PORT"]
