@@ -22,6 +22,7 @@ services:
 
   - type: web
     name: chatbot-actions
+    startCommand: "rasa run actions -p $PORT"
     env: docker
     plan: free
     region: oregon
@@ -36,6 +37,7 @@ services:
 
   - type: web
     name: chatbot-rasa-server
+    startCommand: "rasa run --enable-api --cors \"*\" -p $PORT"
     env: docker
     plan: free
     region: oregon
