@@ -67,9 +67,10 @@ class ActionExtractInfoWithGemini(Action):
             return [FollowupAction("formulario_agendamento")]
 
         user_message = tracker.latest_message.get('text')
+        # Updated prompt to extract more relevant information upfront
         prompt = f"""
         Analise a frase do usuário e extraia as seguintes informações em formato JSON. Se uma informação não estiver presente, use "null".
-        Entidades: especialidade, nome_doutor, data_preferida.
+        Entidades: especialidade, nome_doutor, data_preferida, nome_paciente, email.
         Frase: "{user_message}"
         JSON:
         """
@@ -83,12 +84,24 @@ class ActionExtractInfoWithGemini(Action):
                 slots_to_set.append(SlotSet("especialidade", extracted_data["especialidade"]))
             if extracted_data.get("data_preferida"):
                 slots_to_set.append(SlotSet("data_preferida", extracted_data["data_preferida"]))
+            if extracted_data.get("nome_doutor"): # New: Set doctor_name if extracted
+                slots_to_set.append(SlotSet("doctor_name", extracted_data["nome_doutor"]))
+            if extracted_data.get("nome_paciente"): # New: Set nome_paciente if extracted
+                slots_to_set.append(SlotSet("nome_paciente", extracted_data["nome_paciente"]))
+            if extracted_data.get("email"): # New: Set email if extracted
+                slots_to_set.append(SlotSet("email", extracted_data["email"]))
             
             if slots_to_set:
                 dispatcher.utter_message(text="Entendi! Vamos iniciar o agendamento com essas informações.")
                 return slots_to_set + [FollowupAction("formulario_agendamento")]
             else:
+                # If no specific info is extracted, let the general question handler respond.
+                # This ensures the bot doesn't get stuck if no relevant slots are found.
                 return [FollowupAction("action_handle_general_question")]
+        except json.JSONDecodeError as e:
+            logger.error(f"Erro ao decodificar JSON do Gemini na extração: {e}. Resposta bruta: {response.text}")
+            dispatcher.utter_message(text="Desculpe, tive um problema ao processar as informações. Vamos tentar de outra forma.")
+            return [FollowupAction("formulario_agendamento")] # Fallback to form for clarity
         except Exception as e:
             logger.error(f"Erro na extração com Gemini: {e}")
             return [FollowupAction("action_handle_general_question")]
@@ -175,58 +188,6 @@ class ActionAskDoctorId(Action):
             dispatcher.utter_message(f"Não encontrei doutores para {especialidade_nome}. Gostaria de tentar outra especialidade?")
         return []
 
-
-
-
-
-
-class ActionVerificarDisponibilidade(Action):
-    def name(self) -> Text:
-        return "action_verificar_disponibilidade"
-
-    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[Dict]:
-        doctor_id = tracker.get_slot("doctor_id")
-        data_preferida_str = tracker.get_slot("data_preferida")
-        doctor_name = tracker.get_slot("doctor_name")
-
-        # ... (lógica para escolher doutor 'any' permanece a mesma) ...
-        # ...
-
-        # Lógica para converter "amanhã", "hoje", etc.
-        target_date = datetime.now()
-        if "amanhã" in data_preferida_str.lower():
-            target_date += timedelta(days=1)
-        
-        # Formata a data para YYYY-MM-DD, que é o que o service.ts espera
-        date_iso = target_date.strftime("%Y-%m-%d")
-        
-        # 1. Horários de trabalho ESTÁTICOS (como você mencionou)
-        horarios_de_trabalho = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"]
-        
-        # 2. Busca os agendamentos existentes no banco de dados para a data
-        # A chamada está correta: nome da função, id do médico, e a data formatada
-        appointments = _run_db_service(["getAppointmentsByDoctorAndDate", doctor_id, date_iso])
-        
-        if appointments is None:
-            dispatcher.utter_message("Desculpe, tive um problema ao verificar os horários. Poderia tentar novamente?")
-            return []
-
-        # 3. Extrai apenas a HORA dos agendamentos existentes
-        horarios_agendados = [datetime.fromisoformat(a['dateTime'].replace('Z', '')).strftime("%H:%M") for a in appointments]
-        
-        # 4. Calcula os horários realmente disponíveis
-        horarios_disponiveis = [h for h in horarios_de_trabalho if h not in horarios_agendados]
-
-        if horarios_disponiveis:
-            message = f"Encontrei os seguintes horários disponíveis para o(a) Dr(a). {doctor_name} no dia {target_date.strftime('%d/%m')}:"
-            buttons = [{"title": h, "payload": f'/informar_horario_escolhido{{"horario_escolhido":"{h}"}}'} for h in horarios_disponiveis]
-            dispatcher.utter_message(text=message, buttons=buttons)
-            return [SlotSet("horarios_disponiveis", horarios_disponiveis)]
-        else:
-            dispatcher.utter_message(f"Desculpe, o(a) Dr(a). {doctor_name} não tem horários livres na data solicitada. Gostaria de tentar outra data?")
-            return [SlotSet("data_preferida", None), SlotSet("horarios_disponiveis", [])]
-
-
 class ActionAgendarConsulta(Action):
     def name(self) -> Text:
         return "action_agendar_consulta"
@@ -237,21 +198,25 @@ class ActionAgendarConsulta(Action):
             dispatcher.utter_message(response="utter_erro_agendamento")
             return [AllSlotsReset()]
 
-        data_str = tracker.get_slot("data_preferida")
-        # CORREÇÃO: Usa o slot correto para pegar o horário
-        horario_escolhido = tracker.get_slot("horario_escolhido") 
+        data_preferida_str = tracker.get_slot("data_preferida") # Expected format: DD/MM/YYYY
+        horario_escolhido = tracker.get_slot("horario_escolhido") # Expected format: HH:MM
 
-        target_date = datetime.now()
-        if "amanhã" in data_str.lower():
-            target_date += timedelta(days=1)
-            
-        # CORREÇÃO: Garante que 'horario_escolhido' não seja nulo antes de usar
-        if not horario_escolhido:
-            dispatcher.utter_message("Ocorreu um erro, não consegui identificar o horário escolhido. Vamos tentar novamente.")
+        try:
+            # Parse the date (DD/MM/YYYY)
+            day, month, year_str = data_preferida_str.split('/')
+            # Use current year, or assume next year if date is in the past
+            current_year = datetime.now().year
+            parsed_date = datetime(int(year_str), int(month), int(day))
+            if parsed_date < datetime.now().replace(hour=0, minute=0, second=0, microsecond=0):
+                parsed_date = datetime(current_year + 1, int(month), int(day))
+
+            # Combine with chosen time
+            hora, minuto = map(int, horario_escolhido.split(':'))
+            appointment_datetime = parsed_date.replace(hour=hora, minute=minuto, second=0, microsecond=0)
+        except Exception as e:
+            logger.error(f"Erro ao parsear data ou hora para agendamento: {e}")
+            dispatcher.utter_message(response="utter_erro_agendamento")
             return [AllSlotsReset()]
-
-        hora, minuto = map(int, horario_escolhido.split(':'))
-        appointment_datetime = target_date.replace(hour=hora, minute=minuto, second=0, microsecond=0)
 
         appointment_data = {
             "patientId": patient['id'],
@@ -274,9 +239,6 @@ class ActionAgendarConsulta(Action):
             dispatcher.utter_message(response="utter_erro_agendamento")
             
         return [AllSlotsReset()]
-
-
-
 
 
 WEEKDAY_MAP = {
@@ -313,7 +275,7 @@ class ValidateFormularioAgendamento(FormValidationAction):
         user_text = tracker.latest_message.get("text", "").lower()
 
         if not horarios_disponiveis:
-            # Caso de segurança, não deveria acontecer
+            # Caso de segurança, não deveria acontecer se validate_data_preferida funcionou
             dispatcher.utter_message(text="Desculpe, parece que não tenho horários para validar.")
             return {"horario_escolhido": None}
 
@@ -365,37 +327,49 @@ class ValidateFormularioAgendamento(FormValidationAction):
             dispatcher.utter_message(text="Por favor, selecione um médico primeiro.")
             return {"data_preferida": None}
 
-        # Lógica de conversão de data melhorada
         today = datetime.now()
         target_date = None
 
-        if "hoje" in user_input_date:
-            target_date = today
-        elif "amanhã" in user_input_date:
-            target_date = today + timedelta(days=1)
-        elif "/" in user_input_date:
+        # Try to parse exact date first (DD/MM or DD/MM/YYYY)
+        match_date = re.match(r'(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?', user_input_date)
+        if match_date:
+            day, month, year = match_date.groups()
             try:
-                day, month = map(int, user_input_date.split('/'))
-                target_date = datetime(today.year, month, day)
+                if year:
+                    year_int = int(year)
+                    if len(year) == 2: # Handle 2-digit year (e.g., 24 for 2024)
+                        year_int = 2000 + year_int if year_int < 50 else 1900 + year_int
+                    target_date = datetime(year_int, int(month), int(day))
+                else: # No year specified, assume current year
+                    target_date = datetime(today.year, int(month), int(day))
+                
+                # If date is in the past, try next year
                 if target_date < today.replace(hour=0, minute=0, second=0, microsecond=0):
-                    target_date = datetime(today.year + 1, month, day) # Se for no passado, tenta o próximo ano
+                    target_date = datetime(today.year + 1, int(month), int(day))
             except ValueError:
-                dispatcher.utter_message(text="Formato de data inválido. Use 'hoje', 'amanhã' ou 'DD/MM'.")
-                return {"data_preferida": None}
-        else:
-            # Verifica se o input é um dia da semana
-            for day_name, day_index in WEEKDAY_MAP.items():
-                if day_name in user_input_date:
-                    target_date = _find_next_weekday(today, day_index)
-                    break
+                pass # Continue to other parsing methods if invalid date
+
+        if not target_date: # If exact date parsing failed, try relative dates
+            if "hoje" in user_input_date:
+                target_date = today
+            elif "amanhã" in user_input_date:
+                target_date = today + timedelta(days=1)
+            else:
+                # Check for weekdays (e.g., "segunda", "terça")
+                for day_name, day_index in WEEKDAY_MAP.items():
+                    if day_name in user_input_date:
+                        target_date = _find_next_weekday(today, day_index)
+                        break
         
         if not target_date:
             dispatcher.utter_message(text=f"Não entendi a data '{slot_value}'. Por favor, tente 'hoje', 'amanhã', 'DD/MM' ou um dia da semana como 'segunda'.")
             return {"data_preferida": None}
 
+        # Set time to midday to avoid timezone issues with start/end of day
+        target_date = target_date.replace(hour=12, minute=0, second=0, microsecond=0)
         date_iso = target_date.strftime("%Y-%m-%d")
 
-        # Chama o serviço para buscar horários disponíveis
+        # Calls the service to fetch available slots
         horarios_disponiveis = _run_db_service(["getAvailableSlotsByDoctorAndDate", str(doctor_id), date_iso])
         
         if horarios_disponiveis is None:
@@ -404,10 +378,10 @@ class ValidateFormularioAgendamento(FormValidationAction):
 
         if horarios_disponiveis:
             horarios_str = ", ".join(horarios_disponiveis)
-            message = f"Ótimo! Encontrei os seguintes horários para o(a) Dr(a). {doctor_name} no dia {target_date.strftime('%d/%m')}: {horarios_str}"
+            message = f"Ótimo! Encontrei os seguintes horários para o(a) Dr(a). {doctor_name} no dia {target_date.strftime('%d/%m/%Y')}: {horarios_str}"
             buttons = [{"title": h, "payload": f'/informar_horario_escolhido{{"horario_escolhido":"{h}"}}'} for h in horarios_disponiveis]
             dispatcher.utter_message(text=message, buttons=buttons)
             return {"data_preferida": target_date.strftime('%d/%m/%Y'), "horarios_disponiveis": horarios_disponiveis}
         else:
-            dispatcher.utter_message(text=f"Desculpe, o(a) Dr(a). {doctor_name} não tem horários livres no dia {target_date.strftime('%d/%m')}. Por favor, escolha outra data.")
+            dispatcher.utter_message(text=f"Desculpe, o(a) Dr(a). {doctor_name} não tem horários livres no dia {target_date.strftime('%d/%m/%Y')}. Por favor, escolha outra data.")
             return {"data_preferida": None, "horarios_disponiveis": []}

@@ -8,7 +8,7 @@ stories:
   - action: utter_saudacao
   - user: "Quero marcar uma consulta"
     intent: solicitar_agendamento
-  - action: utter_perguntar_especialidade
+  - action: utter_ask_especialidade
   - user: "para cardiologia"
     intent: informar_especialidade
     entities:
@@ -24,21 +24,11 @@ stories:
     intent: informar_data_preferida
     entities:
       - data: "amanhã"
-  - active_loop: formulario_agendamento
-  - user: "de manhã"
-    intent: informar_hora_preferida
-    entities:
-      - hora: "manhã"
-  - active_loop: null
-  - action: action_verificar_disponibilidade
-  - action: utter_mostrar_horarios_disponiveis
+  - action: utter_ask_horario_escolhido
   - user: "quero o das 09:30"
     intent: informar_horario_escolhido
     entities:
-      - hora: "09:30"
-  - action: utter_confirmar_agendamento_final
-  - user: "sim"
-    intent: afirmar
+      - horario_escolhido: "09:30"
   - action: action_agendar_consulta
   - action: utter_agradecimento
   - user: "obrigado"
@@ -67,17 +57,10 @@ stories:
     intent: informar_data_preferida
     entities:
       - data: "hoje"
-  - active_loop: formulario_agendamento
-  - user: "quero as sete da noite"
-    intent: informar_hora_preferida
-    entities:
-      - hora: "sete da noite"
-  - active_loop: null
-  - action: action_verificar_disponibilidade
   - action: utter_nenhum_horario_disponivel
   - user: "não, obrigado"
     intent: negar
-  - action: utter_ok_sem_nova_tentativa
+  - action: utter_agendamento_cancelado
 
 - story: Teste Listar Especialidades
   steps:
@@ -91,14 +74,14 @@ stories:
     intent: solicitar_exames
     entities:
       - especialidade: "Cardiologia"
-  - action: action_buscar_exames_por_especialidade
+  - action: utter_default
 
 - story: Teste Informações da Clínica
   steps:
   - user: "qual o endereço de vocês?"
     intent: solicitar_info_clinica
-  - action: action_buscar_info_clinica
-
+  - action: utter_info_clinica_placeholder
+  
 - story: Bot Challenge Test
   steps:
   - user: "você é um humano?"
