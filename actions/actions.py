@@ -203,7 +203,7 @@ class ActionAgendarConsulta(Action):
         try:
             # Parse the date (DD/MM/YYYY)
             day, month, year_str = data_preferida_str.split('/')
-            # Use current year, or assume next year if date is in the past
+
             current_year = datetime.now().year
             parsed_date = datetime(int(year_str), int(month), int(day))
             if parsed_date < datetime.now().replace(hour=0, minute=0, second=0, microsecond=0):
@@ -212,6 +212,7 @@ class ActionAgendarConsulta(Action):
             # Combine with chosen time
             hora, minuto = map(int, horario_escolhido.split(':'))
             appointment_datetime = parsed_date.replace(hour=hora, minute=minuto, second=0, microsecond=0)
+
         except Exception as e:
             logger.error(f"Erro ao parsear data ou hora para agendamento: {e}")
             dispatcher.utter_message(response="utter_erro_agendamento")
