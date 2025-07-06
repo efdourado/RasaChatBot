@@ -15,9 +15,14 @@ from dotenv import load_dotenv
 
 import re
 
+import requests 
+
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
+
+DATABASE_API_URL = os.getenv("DATABASE_API_URL", "http://localhost:3000")
 
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -107,38 +112,66 @@ class ActionExtractInfoWithGemini(Action):
 
 
 def _run_db_service(args: List[str]) -> Any:
-    """Executa o script de serviço do banco de dados e retorna a saída JSON."""
-    try:
-        command = ["npx", "ts-node", "src/service.ts"] + args
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=True,
-            encoding='utf-8'
-        )
-
-        json_output = None
-        for line in result.stdout.strip().split('\n'):
-            if line.startswith('[') or line.startswith('{'):
-                json_output = line
-                break
-        
-        if json_output:
-            return json.loads(json_output)
-        
-        print("Saída do serviço não continha JSON:", result.stdout)
+    """Executa uma chamada de API para o serviço de banco de dados e retorna a resposta JSON."""
+    if not args:
+        logger.error("Nenhum argumento fornecido para _run_db_service")
         return None
 
-    except subprocess.CalledProcessError as e:
-        print(f"Erro ao executar o serviço: {e}")
-        print("Stderr:", e.stderr)
+    action = args[0]
+    params = args[1:]
+    
+    get_endpoints = {
+        "getSpecialties": "/specialties",
+        "getDoctorsBySpecialty": f"/doctors/specialty/{params[0]}" if params else None,
+        "getAvailableSlotsByDoctorAndDate": f"/doctors/{params[0]}/available-slots?date={params[1]}" if len(params) > 1 else None,
+    }
+    
+    post_endpoints = {
+        "findOrCreatePatient": "/patients",
+        "createAppointment": "/appointments"
+    }
+
+    try:
+        if action in get_endpoints:
+            endpoint = get_endpoints[action]
+            if not endpoint:
+                raise ValueError(f"Parâmetros faltando para a ação GET: {action}")
+            
+            url = f"{DATABASE_API_URL}{endpoint}"
+            logger.debug(f"Chamando GET: {url}")
+            response = requests.get(url, timeout=10) # 10 segundos de timeout
+
+        elif action in post_endpoints:
+            endpoint = post_endpoints[action]
+            url = f"{DATABASE_API_URL}{endpoint}"
+            
+            # Converte os dados para o formato JSON correto
+            if action == "findOrCreatePatient":
+                payload = {"email": params[0], "name": params[1]}
+            elif action == "createAppointment":
+                # O parâmetro já vem como uma string JSON, então carregamos
+                payload = json.loads(params[0])
+            else:
+                payload = {}
+
+            logger.debug(f"Chamando POST: {url} com dados: {payload}")
+            response = requests.post(url, json=payload, timeout=10)
+
+        else:
+            logger.error(f"Ação desconhecida para a API: {action}")
+            return None
+
+        response.raise_for_status()  # Lança um erro para respostas 4xx/5xx
+        return response.json()
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Erro de rede ao chamar o serviço de DB: {e}")
         return None
     except json.JSONDecodeError as e:
-        print(f"Erro ao decodificar JSON: {e}")
+        logger.error(f"Erro ao decodificar JSON da resposta da API: {e}. Resposta: {response.text}")
         return None
     except Exception as e:
-        print(f"Um erro inesperado ocorreu: {e}")
+        logger.error(f"Um erro inesperado ocorreu em _run_db_service: {e}")
         return None
 
 class ActionBuscarEspecialidades(Action):

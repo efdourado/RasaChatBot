@@ -5,7 +5,7 @@ services:
     name: chatbot-db-api
     env: docker
     plan: free # Use o plano gratuito da Render
-    dockerfile: ./Dockerfile.node
+    dockerfilePath: ./Dockerfile.node
     # A Render detecta a porta 3000 exposta no Dockerfile e faz o roteamento
     healthCheckPath: /
     envVars:
@@ -23,7 +23,7 @@ services:
     name: chatbot-actions
     env: docker
     plan: free
-    dockerfile: ./Dockerfile
+    dockerfilePath: ./Dockerfile
     startCommand: "rasa run actions" # Comando explícito para iniciar as ações
     healthCheckPath: /health
     envVars:
@@ -40,7 +40,7 @@ services:
     name: chatbot-rasa-server
     env: docker
     plan: free
-    dockerfile: ./Dockerfile
+    dockerfilePath: ./Dockerfile
     startCommand: "rasa run --enable-api --cors \"*\"" # Comando para iniciar o Rasa
     healthCheckPath: /
     envVars:
