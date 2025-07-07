@@ -4,10 +4,10 @@ COPY . .
 
 USER root
 
-RUN pip install --no-cache-dir -r actions/requirements.txt
-
 RUN rasa train
 
 USER rasa
 
-CMD ["/bin/sh", "-c", "rasa run --enable-api --cors \"*\" --debug -p $PORT"]
+ENTRYPOINT ["/bin/sh", "-c"]
+
+CMD ["rasa run --enable-api --cors \"*\" --debug -p $PORT"]
