@@ -19,6 +19,8 @@ intents:
   - informar_horario_escolhido
   - agendamento_livre
   - informar_hora_preferida
+  - informar_exame
+  - solicitar_exames
 
 entities:
   - especialidade
@@ -67,7 +69,6 @@ slots:
     mappings:
       - type: from_entity
         entity: data_preferida
-
   horario_escolhido:
     type: text
     mappings:
@@ -75,7 +76,6 @@ slots:
       entity: horario_escolhido
     - type: from_text
       intent: informar_horario_escolhido
-
   horarios_disponiveis:
     type: list
     influence_conversation: false
@@ -99,7 +99,6 @@ responses:
       - text: "Tudo bem, o agendamento foi cancelado. Se precisar de algo mais, é só me dizer."
   utter_default:
       - text: "Desculpe, não entendi o que você quis dizer. Poderia reformular?"
-  
   utter_ask_especialidade:
     - text: "Para qual especialidade você gostaria de agendar?"
   utter_ask_nome_paciente:
@@ -110,7 +109,7 @@ responses:
     - text: "Ótimo. Para qual dia você gostaria de agendar? (Ex: hoje, amanhã, 25/07)"
   utter_ask_horario_escolhido:
     - text: "Perfeito! Encontrei os seguintes horários disponíveis para {doctor_name} no dia {data_preferida}: {horarios_disponiveis}. Qual deles você prefere?"
-  utter_nenhum_horario_disponivel: # This response name aligns with test_stories.yml
+  utter_nenhum_horario_disponivel:
     - text: "Desculpe, o(a) {doctor_name} não tem horários disponíveis para o dia {data_preferida}. Gostaria de tentar outra data?"
   utter_confirmacao_agendamento:
     - text: "Perfeito! Sua consulta com {doctor_name} ({especialidade}) está agendada para {data_preferida} às {horario_escolhido}. O ID do agendamento é {agendamento_id}. Até lá!"
@@ -121,10 +120,8 @@ actions:
   - action_buscar_especialidades
   - action_ask_doctor_id
   - action_agendar_consulta
-
   - action_handle_general_question
   - action_extract_info_with_gemini
-
   - validate_formulario_agendamento
 
 forms:

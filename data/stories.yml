@@ -2,43 +2,42 @@ version: "3.1"
 
 stories:
 
+- story: Usuário cumprimenta o bot
+  steps:
+  - intent: saudacao
+  - action: utter_saudacao
+
 - story: Caminho Feliz do Agendamento Completo
   steps:
   - intent: solicitar_agendamento
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-
   - intent: informar_especialidade
     entities:
     - especialidade: "Cardiologia"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-
   - intent: informar_doutor
     entities:
     - doctor_id: "1"
     - doctor_name: "Dr. João Silva"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-
   - intent: informar_nome_paciente
     entities:
       - nome_paciente: "caminho feliz"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-
   - intent: informar_email
     entities:
       - email: "ed@gmail.com"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-
   - intent: informar_data_preferida
     entities:
       - data_preferida: "segunda"
   - action: formulario_agendamento
   - active_loop: formulario_agendamento
-
   - intent: informar_horario_escolhido
     entities:
       - horario_escolhido: "10:00"
