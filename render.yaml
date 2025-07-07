@@ -38,7 +38,7 @@ services:
     region: oregon
     dockerfilePath: ./Dockerfile
     healthCheckPath: /status
-    initialDelaySeconds: 99
+    initialDelaySeconds: 300
     envVars:
       - key: ACTION_ENDPOINT_URL
         value: "http://chatbot-actions/webhook"
