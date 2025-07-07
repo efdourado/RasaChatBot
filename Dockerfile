@@ -8,4 +8,6 @@ RUN rasa train
 
 USER rasa
 
-CMD ["/bin/sh", "-c", "rasa run --enable-api --cors '*' --debug -p ${PORT:-10000}"]
+ENTRYPOINT ["/bin/sh", "-c"]
+
+CMD ["rasa run --enable-api --cors \"*\" --debug -p $PORT"]
