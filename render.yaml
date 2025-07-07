@@ -37,7 +37,7 @@ services:
     plan: free
     region: oregon
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /health
+    healthCheckPath: /status
     envVars:
       - key: ACTION_ENDPOINT_URL
         value: "http://chatbot-actions/webhook"
