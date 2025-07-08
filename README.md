@@ -37,6 +37,7 @@ O chatbot agora está mais robusto e inteligente. As principais funcionalidades 
     ACTION_ENDPOINT_URL=
 ```
 
+terminais:
 
 ```bash
     rasa train
