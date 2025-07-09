@@ -12,31 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (menuButton && sidebar) {
         menuButton.addEventListener('click', () => {
             sidebar.classList.toggle('expanded');
-            // A alteração de padding-left do chat-interface deve ser tratada pelo CSS:
-            // .sidebar.expanded ~ .chat-interface { ... }
-            // Se houver problemas, a lógica JS abaixo pode ser reativada:
-            /*
-            const chatInterface = document.querySelector('.chat-interface');
-            if (chatInterface) {
-                if (sidebar.classList.contains('expanded')) {
-                    chatInterface.style.paddingLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-largura-expandida').trim();
-                } else {
-                    chatInterface.style.paddingLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-largura-recolhida').trim();
-                }
-            }
-            */
         });
     }
-
-    // Lógica para globalTitle foi removida pois o elemento foi excluído do HTML
-    // if (sidebar) {
-    //     sidebar.addEventListener('transitionend', () => {
-    //         // const globalTitle = document.querySelector('.global-page-title'); // Removido
-    //         // ...lógica para globalTitle.style.paddingLeft removida...
-    //     });
-    //     // Dispara o ajuste inicial para global-page-title // Removido
-    // }
-
 
     userInput.addEventListener('input', () => {
         userInput.style.height = 'auto';
