@@ -41,7 +41,6 @@ body {
   height: 100vh;
 }
 
-/* === INÍCIO: ESTILOS DA SIDEBAR === */
 .sidebar {
   background-color: var(--cor-fundo-sidebar);
   border-right: 1px solid var(--cor-borda);
@@ -139,19 +138,19 @@ body {
   cursor: pointer;
   text-align: left;
   margin-bottom: 20px;
-  opacity: 0;
-  /* MODIFICATION: Initially invisible */
+  /* opacity: 0; */ /* Modificação: removido */
+
   transition: background-color 0.2s, border-color 0.2s, color 0.2s, width 0.25s ease-in-out, padding 0.25s ease-in-out, opacity 0.2s ease-in-out;
   overflow: hidden;
   white-space: nowrap;
 }
 
-/* MODIFICATION: Rule to make button visible on sidebar hover (without "shine") */
-.sidebar:hover .new-chat-button {
+/*
+.sidebar:hover .new-chat-button { Modificação: removido
   opacity: 1;
 }
+*/
 
-/* MODIFICATION: Hover style for "shine" - opacity part removed as it's handled by .sidebar:hover */
 .new-chat-button:hover {
   background-color: var(--cor-fundo-input);
   border-color: var(--cor-primaria-accent);
@@ -227,19 +226,12 @@ body {
   font-weight: 500;
   font-size: 0.85em;
   margin-bottom: 6px;
-  opacity: 0;
-  /* MODIFICATION: Initially invisible */
+
   transition: background-color 0.2s ease, color 0.2s ease, padding 0.25s ease-in-out, opacity 0.2s ease-in-out;
   overflow: hidden;
   white-space: nowrap;
 }
 
-/* MODIFICATION: Rule to make item visible on sidebar hover (without "shine") */
-.sidebar:hover .conversation-item {
-  opacity: 1;
-}
-
-/* MODIFICATION: Hover style for "shine" - opacity part removed */
 .conversation-item:hover {
   background-color: var(--cor-fundo-secundario);
   color: var(--cor-texto-principal);
@@ -249,8 +241,7 @@ body {
   background-color: var(--cor-fundo-mensagem-user);
   color: var(--cor-texto-principal);
   font-weight: 600;
-  opacity: 1;
-  /* Ensure active item is always visible */
+  opacity: 1; 
 }
 
 .chat-icon {
@@ -283,10 +274,6 @@ body {
   display: inline;
 }
 
-/* === FIM: ESTILOS DA SIDEBAR === */
-
-
-/* === INÍCIO: ESTILOS DO CHAT PRINCIPAL === */
 .chat-interface {
   flex-grow: 1;
   display: flex;
@@ -376,7 +363,6 @@ body {
 .message-bubble {
   background-color: var(--cor-fundo-mensagem-bot);
   padding: 8px 12px;
-  /* MODIFICATION: Added font-size for message text and adjusted line-height */
   font-size: 0.9em;
   line-height: 1.5;
   border-radius: var(--raio-borda-padrao);
@@ -519,10 +505,6 @@ body {
   height: 18px;
 }
 
-/* === FIM: ESTILOS DO CHAT PRINCIPAL === */
-
-
-/* === SCROLLBARS === */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const sidebar = document.querySelector('.sidebar');
     const menuButton = document.querySelector('.menu-button');
-    // const chatInterface = document.querySelector('.chat-interface'); // Movido para dentro do if (sidebar) se necessário
 
     const rasaServerUrl = "http://localhost:5005/webhooks/rest/webhook";
 
@@ -42,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     userInput.addEventListener('input', () => {
         userInput.style.height = 'auto';
         let newHeight = userInput.scrollHeight;
-        const maxHeight = parseInt(getComputedStyle(userInput).maxHeight); // Usar o valor do CSS
+        const maxHeight = parseInt(getComputedStyle(userInput).maxHeight);
 
         if (newHeight > maxHeight) {
             newHeight = maxHeight;
@@ -59,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function setBotStatus(online = true, statusText = "") {
-        // console.log("Bot status: " + statusText + " (Online: " + online + ")");
+
     }
 
     function createMessageBlock(text, sender, imageUrl = null, buttons = null) {
@@ -125,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function sendMessageToRasaAPI(messageText) {
-        if (!messageText && messageText !== 0) return; // Permite 0 como mensagem válida
+        if (!messageText && messageText !== 0) return;
 
         try {
             const response = await fetch(rasaServerUrl, {
@@ -149,9 +148,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 botResponses.forEach((botMsg, index) => {
                     setTimeout(() => {
                         appendMessage(botMsg.text, "bot", botMsg.image, botMsg.buttons);
-                    }, 200 * (index + 1)); // Pequeno delay para simular digitação
+                    }, 200 * (index + 1));
                 });
-            } else if (typeof messageText === 'string' && !messageText.startsWith("/")) { // Verifica se é string antes de startsWith
+            } else if (typeof messageText === 'string' && !messageText.startsWith("/")) {
                 console.warn("Rasa_API: Resposta vazia recebida para:", messageText)
             }
 
@@ -192,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('.conversation-list .conversation-item.active').forEach(item => {
                 item.classList.remove('active');
             });
-            // Talvez adicionar a conversa nova à lista e marcá-la como ativa
         });
     }
 
