@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 let errorData = { message: "Erro desconhecido na resposta." };
                 try {
                     errorData = await response.json();
-                } catch (e) { /* ignore */ }
+                } catch (e) { }
                 const errorMessageDetail = errorData?.message || errorData?.reason || response.statusText;
                 throw new Error(`HTTP error! status: ${response.status} - ${errorMessageDetail}`);
             }
@@ -184,9 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (newChatButtonEl) {
         newChatButtonEl.addEventListener("click", () => {
             if (chatMessagesContainer) chatMessagesContainer.innerHTML = '';
-            sendMessageToRasaAPI('/session_start'); // Ou um payload inicial se desejar
-            // Não adicionar mensagem aqui, esperar a resposta do /session_start
-            // appendMessage("Olá! Como posso te ajudar hoje em nossa nova conversa?", "bot");
+            sendMessageToRasaAPI('/session_start');
             userInput.focus();
             document.querySelectorAll('.conversation-list .conversation-item.active').forEach(item => {
                 item.classList.remove('active');
@@ -199,16 +197,5 @@ document.addEventListener("DOMContentLoaded", () => {
         userInput.focus();
         sendMessageToRasaAPI('/session_start');
     }
-
-    // Ajuste inicial do padding do chat-interface removido, CSS deve cuidar disso.
-    // const chatInterface = document.querySelector('.chat-interface');
-    // if (chatInterface && sidebar) {
-    //     if (sidebar.classList.contains('expanded')) {
-    //         chatInterface.style.paddingLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-largura-expandida').trim();
-    //     } else {
-    //         chatInterface.style.paddingLeft = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-largura-recolhida').trim();
-    //     }
-    // }
-
     initializeChat();
 });
