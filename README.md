@@ -73,3 +73,21 @@ Abra `frontend/index.html` em seu navegador ou interaja pela linha de comando: `
   * **Cancelamento e Remarcação:** Implementar um fluxo para que os usuários possam cancelar ou alterar seus agendamentos.
   * **Autenticação de Usuário:** Criar um sistema de login para que pacientes recorrentes tenham uma experiência personalizada.
   * **Histórico de Consultas:** Permitir que o usuário veja suas consultas passadas e futuras.
+
+
+## 👍 DEMO
+
+  * Info
+![alt text](image-1.png)
+
+  * Conversa (em 3 prints)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+
+  * Resultado no BD (Criação do Paciente +Consulta)
+![alt text](image-5.png)
+![alt text](image-6.png)
+
+  * Banco e bot com horários atualizados (não mostra novamente o horário das 9h na segunda)
+![alt text](image-7.png)
