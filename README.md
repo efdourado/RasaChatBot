@@ -1,32 +1,32 @@
-# Chatbot de Agendamento
+# Chatbot
 
-Assistente virtual inteligente desenvolvido com Rasa, capaz de realizar agendamentos, responder perguntas gerais sobre saúde e muito mais, graças à sua integração com um banco de dados em tempo real e a API do Gemini.
+Capaz de realizar agendamentos, responder perguntas gerais sobre saúde e muito mais, graças à sua integração com um BD em tempo real e a API do Gemini.
 
 ---
 
-## ✨ Features
+## Features
 
   * **Integração Real com Banco de Dados (Prisma & Postgres):**
 
-      * As especialidades, médicos e horários são consultados diretamente do banco de dados, garantindo informações sempre atualizadas.
+      * As especialidades, médicos e horários são consultados diretamente do banco de dados, garantindo informações sempre atualizadas;
       * Os agendamentos são **salvos em tempo real** no banco de dados ao final do fluxo.
 
       * O bot verifica a agenda do médico no banco de dados e mostra **apenas os horários realmente livres** para a data escolhida pelo usuário.
 
-  * **IA com Google Gemini:**
+  * **Gemini:**
 
-      * O chatbot consegue entender frases complexas e já preencher os dados do agendamento, tornando a conversa mais fluida.
+      * O chatbot consegue entender frases complexas e já preencher os dados do agendamento, tornando a conversa mais fluida;
       * Se o usuário fizer uma pergunta que não seja sobre agendamentos (ex: "o que é bom para dor de cabeça?"), o bot utiliza a IA do Gemini para fornecer uma resposta útil, mantendo o usuário engajado.
 
-  * **Fluxo de Agendamento de Ponta-a-Ponta:**
+  * **Fluxo de Agendamento:**
 
-      * O usuário é guiado desde a escolha da especialidade até a seleção do médico e do horário.
-      * Coleta de dados do paciente (nome e email) e criação de um registro no BD, se necessário.
+      * O usuário é guiado desde a escolha da especialidade até a seleção do médico e do horário;
+      * Coleta de dados do paciente (nome e email) e criação de um registro no BD, se necessário;
       * Confirmação final com todos os detalhes (médico, especialidade, data, hora) e o **ID do agendamento** salvo no banco.
 
 ---
 
-## 🚀 Run
+## Run
 
 ```.env
     GEMINI_API_KEY=
@@ -45,13 +45,13 @@ Terminais (recomendação: source .venv/bin/activate && deactivate (criação de
 
 4. npx prisma studio (opcional)
 
-5. Abra `frontend/index.html` em seu navegador ou interaja pela linha de comando: `rasa shell`.
+5. Abrir o 'frontend/index.html` em seu navegador.
 
 docker: docker build -t chatbot . && docker run -p 5005:8080 -e PORT=8080 --rm chatbot
 
 ---
 
-## 👍 Demo
+## Demo
 
   * Info
 ![alt text](image-1.png)
@@ -70,8 +70,7 @@ docker: docker build -t chatbot . && docker run -p 5005:8080 -e PORT=8080 --rm c
 
 ---
 
-## 💡 Roadmap
+## Roadmap
 
-  * **Cancelamento e Remarcação:** Implementar um fluxo para que os usuários possam cancelar ou alterar seus agendamentos.
-  * **Autenticação de Usuário:** Criar um sistema de login para que pacientes recorrentes tenham uma experiência personalizada.
-  * **Histórico de Consultas:** Permitir que o usuário veja suas consultas passadas e futuras.
+  * Cancelar ou alterar seus agendamentos.
+  * Permitir que o usuário veja suas consultas passadas e futuras.
