@@ -1,0 +1,30 @@
+{
+  "name": "sup",
+  "version": "1.0.0",
+  "description": "Chatbot de Agendamento da Clínica Super Saudável",
+  "main": "dist/service.js",
+  "scripts": {
+    "dev": "ts-node src/service.ts",
+    "prisma:generate": "prisma generate",
+    "start": "node dist/service.js",
+    "seed": "ts-node prisma/seed.ts",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "rasa:actions": "rasa run actions",
+    "rasa:server": "rasa run --enable-api --cors \"*\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "express": "^4.18.2",
+    "prisma": "^6.8.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^22.10.5",
+    "dotenv-cli": "^8.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

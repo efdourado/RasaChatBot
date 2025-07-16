@@ -1,0 +1,11 @@
+FROM rasa/rasa-sdk:3.6.0
+
+WORKDIR /app
+
+COPY actions/ /app/actions
+
+RUN pip install --no-cache-dir -r /app/actions/requirements.txt
+
+EXPOSE 5055
+
+CMD ["python", "-m", "actions.custom_actions_server"]

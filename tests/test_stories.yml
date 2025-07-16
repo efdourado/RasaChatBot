@@ -1,0 +1,89 @@
+version: "3.1"
+
+stories:
+- story: Teste Caminho Feliz Agendamento Completo
+  steps:
+  - user: "Olá"
+    intent: saudacao
+  - action: utter_saudacao
+  - user: "Quero marcar uma consulta"
+    intent: solicitar_agendamento
+  - action: utter_ask_especialidade
+  - user: "para cardiologia"
+    intent: informar_especialidade
+    entities:
+      - especialidade: "Cardiologia"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - user: "Meu nome é Teste Feliz"
+    intent: informar_nome_paciente
+    entities:
+      - nome_paciente: "Teste Feliz"
+  - active_loop: formulario_agendamento
+  - user: "para amanhã"
+    intent: informar_data_preferida
+    entities:
+      - data: "amanhã"
+  - action: utter_ask_horario_escolhido
+  - user: "quero o das 09:30"
+    intent: informar_horario_escolhido
+    entities:
+      - horario_escolhido: "09:30"
+  - action: action_agendar_consulta
+  - action: utter_agradecimento
+  - user: "obrigado"
+    intent: agradecimento
+  - action: utter_despedida
+  - user: "tchau"
+    intent: despedida
+
+- story: Teste Agendamento - Nenhum horário disponível
+  steps:
+  - user: "Oi"
+    intent: saudacao
+  - action: utter_saudacao
+  - user: "Gostaria de agendar com Pediatria"
+    intent: informar_especialidade
+    entities:
+      - especialidade: "Pediatria"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - user: "Paciente Teste Sem Sorte"
+    intent: informar_nome_paciente
+    entities:
+      - nome_paciente: "Teste Sem Sorte"
+  - active_loop: formulario_agendamento
+  - user: "hoje"
+    intent: informar_data_preferida
+    entities:
+      - data: "hoje"
+  - action: utter_nenhum_horario_disponivel
+  - user: "não, obrigado"
+    intent: negar
+  - action: utter_agendamento_cancelado
+
+- story: Teste Listar Especialidades
+  steps:
+  - user: "Quais especialidades vocês atendem?"
+    intent: solicitar_especialidades
+  - action: action_buscar_especialidades
+
+- story: Teste Listar Exames para Especialidade
+  steps:
+  - user: "quais exames tem para cardiologia?"
+    intent: solicitar_exames
+    entities:
+      - especialidade: "Cardiologia"
+  - action: utter_default
+
+- story: Teste Informações da Clínica
+  steps:
+  - user: "qual o endereço de vocês?"
+    intent: solicitar_info_clinica
+  - action: utter_info_clinica_placeholder
+  
+- story: Bot Challenge Test
+  steps:
+  - user: "você é um humano?"
+    intent: bot_challenge
+  - action: utter_iamabot

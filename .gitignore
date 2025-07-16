@@ -1,0 +1,11 @@
+.venv/
+.rasa/
+
+node_modules/
+
+.env
+
+
+models/*.tar.gz
+dist/
+prisma/dev.db

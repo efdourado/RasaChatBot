@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (menuButton && sidebar) {
         menuButton.addEventListener('click', () => {
             sidebar.classList.toggle('expanded');
- 
         });
     }
 
@@ -37,6 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function setBotStatus(online = true, statusText = "") {
         // console.log("Bot status: " + statusText + " (Online: " + online + ")");
+
+
+
     }
 
     function createMessageBlock(text, sender, imageUrl = null, buttons = null) {
@@ -102,7 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function sendMessageToRasaAPI(messageText) {
+
         if (!messageText && messageText !== 0) return; // Permite 0 como mensagem válida
+
 
         try {
             const response = await fetch(rasaServerUrl, {
@@ -115,7 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 let errorData = { message: "Erro desconhecido na resposta." };
                 try {
                     errorData = await response.json();
-                } catch (e) { /* ignore */ }
+
+                } catch (e) { }
+
                 const errorMessageDetail = errorData?.message || errorData?.reason || response.statusText;
                 throw new Error(`HTTP error! status: ${response.status} - ${errorMessageDetail}`);
             }
@@ -126,9 +132,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 botResponses.forEach((botMsg, index) => {
                     setTimeout(() => {
                         appendMessage(botMsg.text, "bot", botMsg.image, botMsg.buttons);
-                    }, 200 * (index + 1)); 
+
+                    }, 200 * (index + 1));
                 });
-            } else if (typeof messageText === 'string' && !messageText.startsWith("/")) { 
+            } else if (typeof messageText === 'string' && !messageText.startsWith("/")) {
                 console.warn("Rasa_API: Resposta vazia recebida para:", messageText)
             }
 
@@ -163,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
         newChatButtonEl.addEventListener("click", () => {
             if (chatMessagesContainer) chatMessagesContainer.innerHTML = '';
             sendMessageToRasaAPI('/session_start'); 
+
             userInput.focus();
             document.querySelectorAll('.conversation-list .conversation-item.active').forEach(item => {
                 item.classList.remove('active');
@@ -175,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userInput.focus();
         sendMessageToRasaAPI('/session_start');
     }
+
 
     // Ajuste inicial do padding do chat-interface removido, CSS deve cuidar disso.
     // const chatInterface = document.querySelector('.chat-interface');

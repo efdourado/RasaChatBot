@@ -1,0 +1,700 @@
+version: "3.1"
+
+nlu:
+- intent: saudacao
+  examples: |
+    - Olá
+    - Oi
+    - Bom dia
+    - Boa tarde
+    - E aí?
+    - Começar
+    - Olá, tudo bem?
+    - Tudo certo?
+    - Opa
+    - Salve
+    - Como vai?
+    - Boa noite
+    - Olá, chatbot
+    - Iniciar conversa
+    - Gostaria de começar
+    - eae
+    - Oie
+    - Olá, como vai?
+    - Como estamos?
+    - Podemos começar?
+    - Bom dia, gostaria de uma informação
+    - Boa tarde, preciso de ajuda
+    - Boa noite, tudo joia?
+    - Quero iniciar
+    - Vamos começar
+    - Start
+    - Oi, tudo bem contigo?
+    - Queria uma ajuda
+    - Olá, bom dia
+    - Olá, boa tarde
+    - Olá, boa noite
+
+- intent: despedida
+  examples: |
+    - Tchau
+    - Até mais
+    - Adeus
+    - Até a próxima
+    - Encerrar
+    - Tchau, obrigado
+    - Valeu, tchau
+    - Falou
+    - Até logo
+    - A gente se vê
+    - Fim
+    - Quero sair
+    - Finalizar atendimento
+    - Obrigado, tchau
+    - flw
+    - valeu
+    - Por hoje é só
+    - Pode encerrar
+    - Obrigado, pode finalizar
+    - Até breve
+    - Agradeço, até mais
+    - Finalizar, por favor
+    - Já terminei, obrigado
+    - É só isso, tchau
+    - Tchau, tchau
+    - Quero finalizar a conversa
+    - Encerrar o chat
+    - Obrigado, já resolvi
+    - Falou, até
+    - Um abraço, tchau
+    - Chega por hoje
+
+- intent: agradecimento
+  examples: |
+    - Obrigado
+    - Valeu
+    - Muito obrigado
+    - Agradecido
+    - Grato
+    - Obrigada
+    - Agradeço
+    - Muitíssimo obrigado
+    - Show, valeu!
+    - Top, obrigado
+    - Agradeço muito
+    - Perfeito, obrigado
+    - Era isso, valeu
+    - Gentileza sua, obrigado
+    - Valeu mesmo!
+    - Show de bola, obrigado
+    - Gratidão
+    - Agradeço a ajuda
+    - Muito amável, obrigado
+    - Perfeito, era isso
+    - Ótimo, valeu!
+    - Agradeço a atenção
+    - Obrigado pela ajuda
+    - Era só isso, grato
+    - Fico agradecido
+    - Obrigado, ajudou muito
+    - Vlw
+    - Obg
+
+- intent: solicitar_agendamento
+  examples: |
+    - Quero marcar uma consulta
+    - Preciso de um médico
+    - Gostaria de agendar um horário
+    - Preciso agendar uma consulta
+    - Marcar consulta
+    - Agendar consulta
+    - Como faço para agendar?
+    - Agendar um horário
+    - Consulta médica
+    - Gostaria de marcar um médico
+    - Preciso de atendimento
+    - Quero agendar
+    - Agendar
+    - Marcar um horário
+    - Ver horários para consulta
+    - Poderia me ajudar a agendar?
+    - É possível agendar uma consulta?
+    - Quero um encaixe
+    - Queria ver a agenda
+    - Preciso passar com um especialista
+    - Tem vaga pra consulta?
+    - Agendar um check-up
+    - Preciso de uma consulta nova
+    - Marcar um retorno
+    - Gostaria de verificar os horários disponíveis
+    - Como agendar?
+    - Me ajuda a marcar uma consulta
+    - Quero ver a agenda de um doutor
+    - Preciso de um agendamento
+    - É para marcar uma consulta
+    - Agendamento de consulta
+    - Vamos agendar?
+    - Gostaria de fazer um agendamento
+    - Preciso me consultar
+    - Verificar disponibilidade de agenda
+
+- intent: informar_especialidade
+  examples: |
+    - [Cardiologia](especialidade)
+    - Gostaria de um [dermatologista](especialidade)
+    - Pode ser [clínico geral](especialidade)?
+    - Preciso de um [ortopedista](especialidade)
+    - Quero agendar com [pediatria](especialidade)
+    - Para a especialidade de [Ginecologia](especialidade)
+    - Eu quero [Cardiologia](especialidade)
+    - A especialidade é [Dermatologia](especialidade)
+    - Para [Urologia](especialidade)
+    - Com [Oftalmologista](especialidade)
+    - Seria [Pediatria](especialidade)
+    - A área é [psiquiatria](especialidade)
+    - É para [gastroenterologia](especialidade)
+    - [Endocrinologista](especialidade), por favor
+    - Busco um [neurologista](especialidade)
+    - [Reumatologia](especialidade)
+    - Especialidade [Cardiologista](especialidade)
+    - Gostaria de [cardiologia](especialidade) mesmo
+    - Queria um [clínico geral](especialidade)
+    - Busco [otorrino](especialidade)
+    - A especialidade que preciso é [nutricionista](especialidade)
+    - [Pneumologista](especialidade), por gentileza
+    - Preciso de um [angiologista](especialidade)
+    - Pode ser [psicólogo](especialidade)
+    - A área médica é [infectologia](especialidade)
+    - Quero agendar com um [geriatra](especialidade)
+    - É com um [proctologista](especialidade)
+    - Para a área de [hematologia](especialidade)
+    - A consulta é para [nefrologia](especialidade)
+    - [Oncologista](especialidade)
+    - Seria com um [alergista](especialidade)
+    - [Fisioterapia](especialidade)
+    - Gostaria de [nutrição](especialidade)
+    - A especialidade desejada é [gastro](especialidade)
+    - [Clínico](especialidade)
+    - Eu preciso de [ortopedia](especialidade)
+    - Seria um [ginecologista](especialidade)
+    - [Oftalmo](especialidade)
+
+- intent: informar_exame
+  examples: |
+    - [Raio-X do tórax](tipo_exame)
+    - Preciso fazer um [eletrocardiograma](tipo_exame)
+    - Quero marcar uma [ressonância magnética](tipo_exame)
+    - Um exame de [ultrassonografia](tipo_exame)
+    - O exame é [teste ergométrico](tipo_exame)
+    - Gostaria de marcar um [hemograma completo](tipo_exame)
+    - Seria para um [mapa](tipo_exame)
+    - Fazer um [holter](tipo_exame)
+    - Preciso de [endoscopia](tipo_exame)
+    - [Colonoscopia](tipo_exame)
+    - Para [exame de sangue](tipo_exame)
+    - Tipo de exame: [ecocardiograma](tipo_exame)
+    - Vim fazer uma [tomografia](tipo_exame)
+    - O pedido é para [teste de esforço](tipo_exame)
+    - Marcar [mamografia](tipo_exame)
+    - Preciso de um [exame de urina](tipo_exame)
+    - O exame solicitado foi [densitometria óssea](tipo_exame)
+    - Agendar um [raio-x](tipo_exame)
+    - É um [ultrassom de abdômen](tipo_exame)
+    - Para fazer um [exame de vista](tipo_exame)
+    - Gostaria de um [eletroencefalograma](tipo_exame)
+    - É uma [biópsia](tipo_exame)
+    - [Exame de fezes](tipo_exame)
+    - O tipo do exame é [Cintilografia do Miocárdio](tipo_exame)
+
+- intent: solicitar_exames
+  examples: |
+    - Quais exames tem para [cardiologia](especialidade)?
+    - Que tipo de exame o [ortopedista](especialidade) faz?
+    - Ver exames de [dermatologia](especialidade)
+    - Quais exames estão disponíveis?
+    - Exames
+    - Que exames vocês fazem?
+    - Quais os exames para [pediatria](especialidade)?
+    - Gostaria de saber os exames.
+    - Lista de exames para [clínico geral](especialidade), por favor.
+    - Tem exame para [ginecologia](especialidade)?
+    - Para [oftalmologia](especialidade), quais exames?
+    - Preciso saber os exames da especialidade [urologia](especialidade)
+    - Quais exames o [gastro](especialidade) pode pedir?
+    - Me fala os exames de [cardio](especialidade)
+    - Para a especialidade [endocrinologia](especialidade), que exames tem?
+    - Lista de exames disponíveis, por favor
+    - Gostaria de ver a lista de exames
+    - Quais exames vocês realizam aqui?
+    - O que o [pneumologista](especialidade) pode solicitar de exame?
+    - Para [neurologia](especialidade), o que vocês oferecem de exames?
+    - Ver os exames
+    - Poderia listar os exames?
+    - Queria saber quais exames posso fazer
+    - Quais os exames que a clínica faz?
+
+- intent: informar_data_preferida
+  examples: |
+    - Para [amanhã](data_preferida)
+    - [Na próxima semana](data_preferida)
+    - No dia [15](data_preferida)
+    - Pode ser dia [25/12](data_preferida)
+    - Dia [25 de dezembro](data_preferida)
+    - Quero para [hoje](data_preferida) mesmo
+    - Para o dia [primeiro de junho](data_preferida)
+    - Data [10 de maio](data_preferida)
+    - [Depois de amanhã](data_preferida)
+    - [Semana que vem](data_preferida)
+    - [Dia 5](data_preferida)
+    - [10/01](data_preferida)
+    - [Dia dez de janeiro](data_preferida)
+    - Para [terça-feira](data_preferida)
+    - Na [próxima quarta](data_preferida)
+    - Em [15 dias](data_preferida)
+    - [Daqui a uma semana](data_preferida)
+    - [No começo do mês que vem](data_preferida)
+    - Para [segunda](data_preferida)
+    - Gostaria para [sexta](data_preferida)
+    - quero para [hoje](data_preferida)
+    - pode ser [amanhã](data_preferida)
+    - na [próxima sexta](data_preferida)
+    - no dia [15/08](data_preferida)
+    - [hoje a tarde](data_preferida)
+    - [amanhã de manhã](data_preferida)
+    - [amanhã às 10h](data_preferida)
+    - quero para [hoje às 15:30](data_preferida)
+    - agende para [terça que vem](data_preferida)
+    - no dia [20 de novembro](data_preferida)
+    - pode ser no dia [05 do mês que vem](data_preferida)
+    - para o dia [30-05](data_preferida)
+    - na [segunda-feira](data_preferida)
+    - na [terça](data_preferida)
+    - na [quarta](data_preferida)
+    - na [quinta](data_preferida)
+    - na [sexta](data_preferida)
+    - no [sábado](data_preferida)
+    - no [domingo](data_preferida)
+    - dia [25/07](data_preferida)
+    - [10/08](data_preferida)
+    - [01/01/2026](data_preferida)
+    - [2 de fevereiro](data_preferida)
+    - na próxima [semana](data_preferida)
+    - para [semana que vem](data_preferida)
+    - [dia 15 de agosto](data_preferida)
+    - [daqui a duas semanas](data_preferida)
+    - no [final do mês](data_preferida)
+    - na [primeira semana de agosto](data_preferida)
+    - na [próxima quinta-feira](data_preferida)
+    - para [terça agora](data_preferida)
+    - no dia [dezoito](data_preferida)
+    - [03-09](data_preferida)
+    - [05/10/2025](data_preferida)
+    - [o mais breve possível](data_preferida)
+    - para [daqui a 3 dias](data_preferida)
+    - [na última semana do mês](data_preferida)
+    - [na segunda quinzena de julho](data_preferida)
+    - pode ser para o dia [vinte](data_preferida)
+    - [dia 12 do mês que vem](data_preferida)
+    - [segunda-feira que vem](data_preferida)
+    - [quarta da semana que vem](data_preferida)
+    - tem para [amanhã à tarde](data_preferida)?
+    - queria para [hoje no final do dia](data_preferida)
+    - no [dia primeiro do próximo mês](data_preferida)
+    - para a data [08/09](data_preferida)
+    - pode ser no dia [7](data_preferida)
+    - [no próximo mês](data_preferida)
+    - [daqui um mês](data_preferida)
+    - pode ser [depois de amanhã de manhã](data_preferida)
+    - na [semana do dia 15](data_preferida)
+    - [1/2](data_preferida)
+    - [dia trinta e um](data_preferida)
+    - para a [próxima segunda](data_preferida)
+    - para a [próxima terça](data_preferida)
+    - para a [próxima quinta](data_preferida)
+    - [próximo sábado](data_preferida)
+    - no [início da próxima semana](data_preferida)
+    - para [quinta-feira, dia 10](data_preferida)
+    - [22 de março](data_preferida)
+    - para o dia [9 do 9](data_preferida)
+    - em [três semanas](data_preferida)
+    - [final de semana](data_preferida)
+    - no dia [vinte e dois](data_preferida)
+    - [na primeira oportunidade](data_preferida)
+    - na [data mais próxima](data_preferida)
+    - [a partir de amanhã](data_preferida)
+    - para [qualquer dia da semana que vem](data_preferida)
+
+- intent: informar_nome_paciente
+  examples: |
+    - Meu nome é [João Silva](nome_paciente)
+    - O paciente é [Maria Oliveira](nome_paciente)
+    - [Carlos Souza](nome_paciente)
+    - Em nome de [Ana Pereira](nome_paciente)
+    - Pode marcar para [Pedro Santos](nome_paciente)
+    - meu nome é [teste feliz](nome_paciente)
+    - o nome do paciente é [Luzia Ferreira](nome_paciente)
+    - pode anotar [Sebastião Alves Dourado](nome_paciente)
+    - Sou [Joana D'arc Lima](nome_paciente)
+    - Nome: [Roberto Carlos Braga](nome_paciente)
+    - Paciente: [Silvio Santos de Oliveira](nome_paciente)
+    - Marque para [Fernanda Montenegro Alves](nome_paciente)
+    - É [Antônio Fagundes Neto](nome_paciente)
+    - Agendar para [Mariana Ximenes da Costa](nome_paciente)
+    - O nome é [José da Silva Xavier](nome_paciente)
+    - meu nome é [Ana Silva](nome_paciente)
+    - sou [Carlos Eduardo](nome_paciente)
+    - [Mariana Santos](nome_paciente)
+    - o paciente é [Fernando Lima](nome_paciente)
+    - meu nome completo é [Beatriz Costa](nome_paciente)
+    - O nome é [Sofia Almeida](nome_paciente)
+    - Em nome de [Lucas Martins](nome_paciente)
+    - Pode registrar como [Isabela Ferreira](nome_paciente)
+    - [Gabriel Rodrigues](nome_paciente)
+    - A paciente se chama [Júlia Gomes](nome_paciente)
+    - Meu nome: [Mateus Alves](nome_paciente)
+    - O nome para o agendamento é [Larissa Carvalho](nome_paciente)
+    - Por favor, anote [Bruno Rocha](nome_paciente)
+    - Pode colocar no nome de [Camila Ribeiro](nome_paciente)
+    - Sou [Rafael Souza](nome_paciente)
+    - É para [Letícia Barros](nome_paciente)
+    - O nome do paciente é [Felipe Mendes](nome_paciente)
+    - Meu nome completo é [Amanda Nogueira da Silva](nome_paciente)
+    - Registre para [Vinícius Correia](nome_paciente)
+    - O nome que deve constar é [Laura Cunha](nome_paciente)
+    - [Ricardo Pereira de Andrade](nome_paciente)
+    - A consulta é para [Patrícia Moreira](nome_paciente)
+    - Por favor, agende para [Daniel Costa](nome_paciente)
+    - o nome é [Helena Dias](nome_paciente)
+
+- intent: informar_horario_escolhido
+  examples: |
+    - Pode ser às [09:00](horario_escolhido)
+    - Quero o de [10:30](horario_escolhido)
+    - [14:00](horario_escolhido) está ótimo
+    - Prefiro [15:30](horario_escolhido)
+    - O horário das [16:00](horario_escolhido)
+    - [11:00](horario_escolhido)
+    - Escolho [08:15](horario_escolhido)
+    - O das [17:45](horario_escolhido)
+    - [Nove e meia](horario_escolhido)
+    - [Dez horas](horario_escolhido)
+    - Vou querer [13:20](horario_escolhido)
+    - Pode ser [16h30](horario_escolhido)
+    - Fico com o horário das [onze e quinze](horario_escolhido)
+    - Seleciono [10:00 AM](horario_escolhido)
+    - às [09:00](horario_escolhido)
+    - pode ser às [10:30](horario_escolhido)
+    - quero o das [14:00](horario_escolhido)
+    - o de [11:00](horario_escolhido)
+    - o horário das [quinze horas](horario_escolhido)
+    - o das [dez da manhã](horario_escolhido)
+    - o [primeiro](horario_escolhido)
+    - a [segunda](horario_escolhido) opção
+    - o das [quatorze e meia](horario_escolhido)
+    - pode ser [9h](horario_escolhido)
+    - [10h30](horario_escolhido)
+    - [15h](horario_escolhido)
+    - o das [nove](horario_escolhido)
+    - o das [dez](horario_escolhido)
+    - o das [onze](horario_escolhido)
+    - pode ser [11:00](horario_escolhido)
+    - quero o das [15:00](horario_escolhido)
+    - o horário das [9h](horario_escolhido)
+    - o das [dez e meia](horario_escolhido)
+    - o primeiro horário
+    - o segundo
+    - opção [3](horario_escolhido)
+    - o das [16](horario_escolhido)
+    - [13 horas](horario_escolhido)
+    - [14 e 30](horario_escolhido)
+    - pode ser as [9](horario_escolhido)
+    - as [10](horario_escolhido)
+    - o das [11](horario_escolhido)
+    - o das [15](horario_escolhido)
+    - o das [16](horario_escolhido)
+    - o das [9h30](horario_escolhido)
+    - o das [10h](horario_escolhido)
+    - o das [11h](horario_escolhido)
+    - o das [15h](horario_escolhido)
+    - o das [16h](horario_escolhido)
+    - as [nove](horario_escolhido)
+    - as [dez](horario_escolhido)
+    - as [onze](horario_escolhido)
+    - as [treze](horario_escolhido)
+    - as [quatorze](horario_escolhido)
+    - as [quinze](horario_escolhido)
+    - as [dezesseis](horario_escolhido)
+    - o das [quatorze e trinta](horario_escolhido)
+    - o das [dezesseis e quinze](horario_escolhido)
+    - [08:30](horario_escolhido) me parece bom
+    - Vou querer o das [11:15](horario_escolhido)
+    - [13:00](horario_escolhido)
+    - Pode marcar às [duas da tarde](horario_escolhido)
+    - O [terceiro](horario_escolhido) horário
+    - A [opção 2](horario_escolhido)
+    - Prefiro o de [10h](horario_escolhido)
+    - Quero agendar para as [17:00](horario_escolhido)
+    - O horário das [oito da manhã](horario_escolhido)
+    - Pode ser [uma e meia](horario_escolhido)
+    - [14:45](horario_escolhido), por favor
+    - O último horário
+    - O das [nove e quinze](horario_escolhido)
+    - Fico com [10:45](horario_escolhido)
+    - [11:30](horario_escolhido), pode ser?
+    - As [3 da tarde](horario_escolhido)
+    - [4 e meia](horario_escolhido)
+    - Vou no de [16:15](horario_escolhido)
+    - Pode confirmar o das [8h](horario_escolhido)
+    - [9 e 45](horario_escolhido)
+    - Quero o horário das [13:30](horario_escolhido)
+    - O das [três e quinze](horario_escolhido)
+    - Escolho o das [cinco da tarde](horario_escolhido)
+    - Pode agendar para as [11 da manhã](horario_escolhido)
+    - Fico com o de [09:30](horario_escolhido)
+    - As [10 da manhã](horario_escolhido)
+    - as [onze e meia](horario_escolhido)
+    - o das [14h15](horario_escolhido)
+    - pode ser o das [15:45](horario_escolhido)
+    - quero o de [oito e quarenta e cinco](horario_escolhido)
+
+- intent: afirmar
+  examples: |
+    - Sim
+    - Correto
+    - Isso mesmo
+    - Confirmo
+    - Pode ser
+    - Afirmativo
+    - Isso
+    - Aham
+    - Claro
+    - Exatamente
+    - Exato
+    - Certamente
+    - Positivo
+    - Com certeza
+    - É isso aí
+    - Pode confirmar
+    - Ok
+    - Firmeza
+    - Pode crer
+    - Fechado
+    - Uhum
+    - Manda bala
+    - Perfeito
+    - Confirmado
+    - Sem dúvida
+    - Justamente
+    - É isso
+    - Certo
+    - Concordo
+    - Sim, por favor
+    - Beleza
+    - Feito
+    - Jóia
+    - S
+    - Y
+
+- intent: negar
+  examples: |
+    - Não
+    - Errado
+    - De jeito nenhum
+    - Negativo
+    - Quero cancelar
+    - Não confirmo
+    - Não quero
+    - Não é isso
+    - De forma alguma
+    - Nem pensar
+    - Não, obrigado
+    - Incorreto
+    - Cancele, por favor
+    - Não, não é isso
+    - Não desejo
+    - Melhor não
+    - Não, por favor
+    - Nada disso
+    - Não, pode cancelar
+    - Absolutamente não
+    - Quero alterar
+    - Não, obrigado(a)
+    - Não é essa a intenção
+    - Não, pera
+    - Acho que não
+    - Não, mude por favor
+    - N
+    - Nao
+    - Nope
+    - Quero fazer de novo
+    - Começar de novo
+
+- intent: solicitar_info_clinica
+  examples: |
+    - Qual o endereço?
+    - Quais convênios vocês aceitam?
+    - Onde fica a clínica?
+    - Qual o telefone de contato?
+    - Informações da clínica
+    - Sobre a clínica
+    - Endereço da clínica
+    - Me passa o endereço
+    - Vocês atendem por qual plano?
+    - Qual o zap da clínica?
+    - Como chegar aí?
+    - Horário de funcionamento?
+    - Quais os contatos?
+    - Mais detalhes sobre a clínica
+    - Vocês abrem aos sábados?
+    - Qual o horário de atendimento?
+    - Qual plano de saúde vocês cobrem?
+    - Me manda a localização
+    - Como faço para chegar?
+    - Qual o e-mail para contato?
+    - Atende particular?
+    - Poderia me informar o endereço completo?
+    - Quais são os horários de pico?
+    - Qual o valor da consulta particular?
+    - Preciso do CNPJ da clínica
+    - Quais os planos de saúde aceitos?
+    - Me fala o WhatsApp
+    - Onde vocês estão localizados?
+
+- intent: solicitar_ajuda
+  examples: |
+    - Ajuda
+    - Não entendi
+    - Socorro
+    - Me ajuda aqui
+    - Como funciona?
+    - O que você faz?
+    - Comandos
+    - O que posso perguntar?
+    - Estou perdido
+    - Preciso de ajuda
+    - O que posso fazer?
+    - Quais são minhas opções?
+    - Pode me ajudar?
+    - Help
+    - Como usar o chat?
+    - Me dê um exemplo
+    - O que eu faço agora?
+    - Não sei como proceder
+    - Pode me explicar de novo?
+    - Quais são os comandos?
+    - Como eu falo com você?
+    - To confuso
+    - Me dê umas dicas
+    - Não estou entendendo
+    - Explique novamente
+    - Quais as funcionalidades?
+    - Opções
+    - Como proceder?
+    - Preciso de um suporte
+    - Menu de ajuda
+
+- intent: solicitar_especialidades
+  examples: |
+    - Quais especialidades vocês têm?
+    - Ver especialidades
+    - Quais são as especialidades da clínica?
+    - Listar especialidades
+    - Que médicos tem aí?
+    - Quais áreas médicas vocês atendem?
+    - Quais áreas vocês atendem?
+    - Lista de médicos
+    - Que tipo de médico tem?
+    - Mostre as especialidades
+    - Especialidades disponíveis
+    - Gostaria de ver as especialidades
+    - Quais os médicos que atendem?
+    - Quais as opções de especialidade?
+    - Me mostre as áreas disponíveis
+    - Preciso de uma lista de especialidades
+    - Pode me dizer as especialidades?
+    - Me lista as especialidades, por favor
+    - Gostaria de saber as especialidades médicas
+    - Quais os doutores da clínica?
+    - Me fala as áreas de atendimento
+    - Quais especialidades posso agendar?
+    - Ver a lista de especialidades
+    - Todas as especialidades
+
+- intent: bot_challenge
+  examples: |
+    - você é um robô?
+    - você é um bot?
+    - quem é você?
+    - qual seu nome?
+    - você é uma inteligência artificial?
+    - Estou falando com uma máquina?
+    - Isso é uma IA?
+    - Você é humano?
+    - Falo com um programa?
+    - Quem está aí?
+    - Estou conversando com uma pessoa?
+    - Quem desenvolveu você?
+    - Você é um programa de computador?
+    - É um robô que está me respondendo?
+    - Qual a sua função?
+    - Como você se chama?
+    - Falo com um robô ou uma pessoa?
+    - Você é real?
+    - Que tipo de assistente você é?
+    - Você é uma pessoa de verdade?
+
+- intent: informar_doutor
+  examples: |
+    - Gostaria de agendar com o [Dr. João Silva](doctor_name)
+    - Pode ser com a [Dra. Maria Santos](doctor_name)
+    - O doutor [Carlos Oliveira](doctor_name)
+    - Quero o [Dr. Carlos Oliveira](doctor_name)
+    - A consulta é com o [Dr. Ricardo Neves](doctor_name)
+    - Prefiro a [Dra. Carolina Mendes](doctor_name)
+    - [Dra. Fernanda Lima](doctor_name), por favor
+    - O médico é o [Dr. Bruno Alves](doctor_name)
+    - Gostaria de marcar com a [Doutora Ana Costa](doctor_name)
+    - Queria uma consulta com o [médico João Pereira](doctor_name)
+
+- intent: informar_email
+  examples: |
+    - meu email é [teste@gmail.com](email)
+    - [joao.silva@email.com](email)
+    - pode anotar [maria.oliveira@email.com](email)
+    - o email é [carlos.santos@email.com](email)
+    - [contato@dominio.com](email)
+    - [teste@hotmail.com](email)
+    - [email@provedor.com.br](email)
+    - [meu.nome@empresa.net](email)
+    - meu e-mail é [abc@hotmail.com](email)
+    - [email@email.com](email)
+    - [ana.costa@provedor.net](email)
+    - meu email para contato é [pedro.gomes@exemplo.com.br](email)
+    - o e-mail para confirmação é [cliente123@servidor.com](email)
+    - [usuario_final@dominio.org](email)
+    - anote aí: [meu.email.profissional@trabalho.com](email)
+    - [contato.empresa@provedor.co](email)
+    - pode enviar para [fulano.de.tal@email.com](email)
+    - O email que uso é [alguem@exemplo.net](email)
+    - [teste.email-123@exemplo-dominio.com](email)
+    - E-mail: [meunome@gmail.com.br](email)
+
+- intent: agendamento_livre
+  examples: |
+    - queria ver um [cardiologista](especialidade) pra [semana que vem](data_preferida)
+    - preciso marcar uma consulta com a [dra ana](doctor_name) pra [amanhã](data_preferida)
+    - tem horário com o [dr. joão](doctor_name) na [parte da tarde](hora)?
+    - marcar consulta
+    - preciso de um [clínico geral](especialidade) para [hoje à tarde](data_preferida)
+    - verificar agenda com a [Dra. Ana Costa](doctor_name) para o dia [10 de agosto](data_preferida)
+    - tem vaga com um [ortopedista](especialidade) na [próxima semana](data_preferida), de [manhã](hora)?
+    - agendar um [raio-x do tórax](tipo_exame) para [amanhã](data_preferida), se possível
+    - gostaria de agendar com o [Dr. Carlos](doctor_name) para [sexta-feira](data_preferida) [depois do almoço](hora)
+    - marcar [pediatra](especialidade) para [a data mais próxima](data_preferida)
+    - tem horário com [dermatologista](especialidade) para [hoje](data_preferida)?
+    - agendar [ginecologista](especialidade) [no final do mês](data_preferida)
+    - quero um encaixe com o [Dr. Ricardo Neves](doctor_name) para [hoje](data_preferida)
+    - Preciso fazer um [eletrocardiograma](tipo_exame) na [próxima segunda](data_preferida)
+    - Queria ver a agenda do [Dr. Bruno Alves](doctor_name)
+    - Marcar uma consulta de [oftalmologia](especialidade) para [daqui a 15 dias](data_preferida)
+    - Tem [urologista](especialidade) para [terça que vem de manhã](data_preferida)?

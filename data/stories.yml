@@ -1,0 +1,64 @@
+version: "3.1"
+
+stories:
+
+- story: Caminho Feliz do Agendamento Completo
+  steps:
+  - intent: solicitar_agendamento
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_especialidade
+    entities:
+    - especialidade: "Cardiologia"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_doutor
+    entities:
+    - doctor_id: "1"
+    - doctor_name: "Dr. João Silva"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_nome_paciente
+    entities:
+      - nome_paciente: "caminho feliz"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_email
+    entities:
+      - email: "ed@gmail.com"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_data_preferida
+    entities:
+      - data_preferida: "segunda"
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+  - intent: informar_horario_escolhido
+    entities:
+      - horario_escolhido: "10:00"
+  - action: formulario_agendamento
+  - active_loop: null
+  - action: action_agendar_consulta
+  - action: utter_agradecimento
+  - intent: despedida
+  - action: utter_despedida
+
+- story: Usuário pede para ver especialidades
+  steps:
+  - intent: solicitar_especialidades
+  - action: action_buscar_especialidades
+
+- story: Usuário pede informações da clínica
+  steps:
+  - intent: solicitar_info_clinica
+  - action: utter_info_clinica_placeholder
+
+- story: Usuário agradece
+  steps:
+  - intent: agradecimento
+  - action: utter_agradecimento
+
+- story: Caminho do agendamento livre com Gemini
+  steps:
+  - intent: agendamento_livre
+  - action: action_extract_info_with_gemini

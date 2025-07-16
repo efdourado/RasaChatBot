@@ -1,0 +1,49 @@
+version: "3.1"
+
+rules:
+- rule: Responder a saudação
+  steps:
+  - intent: saudacao
+  - action: utter_saudacao
+
+- rule: Responder a despedida
+  steps:
+  - intent: despedida
+  - action: utter_despedida
+
+- rule: Responder a desafio "você é um bot?"
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- rule: Responder a agradecimento
+  steps:
+  - intent: agradecimento
+  - action: utter_agradecimento
+  
+
+- rule: Lidar com perguntas gerais (fallback)
+  condition:
+    - active_loop: null
+  steps:
+  - intent: nlu_fallback
+  - action: action_handle_general_question
+
+
+- rule: Ativar formulario_agendamento ao solicitar
+  steps:
+  - intent: solicitar_agendamento
+  - action: formulario_agendamento
+  - active_loop: formulario_agendamento
+
+
+- rule: Submeter o formulário
+  condition:
+  - active_loop: formulario_agendamento
+  - slot_was_set:
+    - horario_escolhido
+  steps:
+  - action: formulario_agendamento
+  - active_loop: null
+  - action: action_agendar_consulta
+  - action: utter_agradecimento 
