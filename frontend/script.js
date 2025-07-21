@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function setBotStatus(online = true, statusText = "") {
-        // Função placeholder, pode ser implementada no futuro.
     }
 
     function createMessageBlock(text, sender, imageUrl = null, buttons = null) {
