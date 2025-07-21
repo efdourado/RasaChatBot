@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const attachmentOptions = document.getElementById("attachment-options");
     const fileUploadInput = document.getElementById("file-upload");
 
+    const transferButton = document.getElementById('request-transfer-btn');
+
     const rasaServerUrl = "http://localhost:5005/webhooks/rest/webhook";
 
     if (menuButton && sidebar) {
@@ -193,13 +195,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    if (transferButton) {
+        transferButton.addEventListener('click', () => {
+            const userMessage = "Gostaria de falar com um atendente";
+            const payload = "/request_human_handover";
+
+            appendMessage(userMessage, "user");
+            sendMessageToRasaAPI(payload);
+
+            setTimeout(() => {
+                appendMessage("Ok, estou buscando um atendente para você. Por favor, aguarde um momento.", "bot");
+            }, 300);
+        });
+    }
+
     function updateSupportStatus() {
         const statusDot = document.getElementById('support-status-dot');
         const statusText = document.getElementById('support-status-text');
-        if (!statusDot || !statusText) return;
+        if (!statusDot || !statusText || !transferButton) return;
 
         const now = new Date();
-        const day = now.getDay(); 
+        const day = now.getDay();
         const hour = now.getHours();
 
         const isOnline = (day >= 1 && day <= 5 && hour >= 8 && hour < 18);
@@ -207,16 +223,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isOnline) {
             statusDot.classList.remove('offline');
             statusDot.classList.add('online');
-            statusText.textContent = 'Disponível agora';
+            statusText.textContent = 'Atendentes disponíveis';
+            transferButton.disabled = false;
         } else {
             statusDot.classList.remove('online');
             statusDot.classList.add('offline');
-            statusText.textContent = 'Fora do horário';
+            statusText.textContent = 'Fora do horário de atendimento';
+            transferButton.disabled = true;
         }
     }
 
     window.handleQuickAction = function(message) {
-        event.preventDefault(); 
+        event.preventDefault();
         appendMessage(message, "user");
         sendMessageToRasaAPI(message);
         userInput.focus();
@@ -229,9 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ]);
         userInput.focus();
 
-        updateSupportStatus(); 
-
-        setInterval(updateSupportStatus, 60000); 
+        updateSupportStatus();
+        setInterval(updateSupportStatus, 60000);
     }
 
     initializeChat();
