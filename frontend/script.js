@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function setBotStatus(online = true, statusText = "") {
-
     }
 
     function createMessageBlock(text, sender, imageUrl = null, buttons = null) {
@@ -45,12 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sender === "bot") {
             const avatar = document.createElement("div");
             avatar.classList.add("message-avatar", "bot-avatar");
-            avatar.textContent = "CS";
+            avatar.textContent = "CV"; // Iniciais da Clínica Vértice
             messageBlock.appendChild(avatar);
         }
 
         const contentWrapper = document.createElement("div");
         contentWrapper.classList.add("message-content-wrapper");
+
+        // Adiciona o nome do remetente
+        const senderName = document.createElement("div");
+        senderName.classList.add("message-sender-name");
+        senderName.textContent = sender === "user" ? "Você" : "Clínica Vértice";
+        contentWrapper.appendChild(senderName);
 
         const bubble = document.createElement("div");
         bubble.classList.add("message-bubble");
@@ -83,11 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             contentWrapper.appendChild(buttonsDiv);
         }
-
-        const timestamp = document.createElement("div");
-        timestamp.classList.add("message-timestamp");
-        timestamp.textContent = getCurrentTime();
-        contentWrapper.appendChild(timestamp);
 
         messageBlock.appendChild(contentWrapper);
         return messageBlock;
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function initializeChat() {
-        appendMessage("Olá! Bem-vindo(a) ao assistente virtual da Clínica Super Saudável. Como posso ajudar?", "bot");
+        appendMessage("Olá! Bem-vindo(a) ao assistente virtual da Clínica Vértice. Como posso ajudar?", "bot");
         userInput.focus();
         sendMessageToRasaAPI('/session_start');
     }
