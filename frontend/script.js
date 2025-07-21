@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.querySelector('.sidebar');
     const menuButton = document.querySelector('.menu-button');
 
+    const attachButton = document.getElementById("attach-button");
+    const attachmentOptions = document.getElementById("attachment-options");
+    const fileUploadInput = document.getElementById("file-upload");
+
     const rasaServerUrl = "http://localhost:5005/webhooks/rest/webhook";
 
     if (menuButton && sidebar) {
@@ -14,6 +18,27 @@ document.addEventListener("DOMContentLoaded", () => {
             sidebar.classList.toggle('expanded');
         });
     }
+
+    attachButton.addEventListener("click", () => {
+        attachmentOptions.classList.toggle("visible");
+    });
+
+    fileUploadInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const fileInfoText = `Arquivo selecionado: <strong>${file.name}</strong>`;
+            appendMessage(fileInfoText, "user");
+            console.log("Arquivo selecionado:", file);
+        }
+        attachmentOptions.classList.remove("visible");
+        fileUploadInput.value = '';
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!attachmentOptions.contains(event.target) && !attachButton.contains(event.target)) {
+            attachmentOptions.classList.remove("visible");
+        }
+    });
 
     userInput.addEventListener('input', () => {
         userInput.style.height = 'auto';
@@ -34,9 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
 
-    function setBotStatus(online = true, statusText = "") {
-    }
-
     function createMessageBlock(text, sender, imageUrl = null, buttons = null) {
         const messageBlock = document.createElement("div");
         messageBlock.classList.add("message-block", sender === "user" ? "user-message-block" : "bot-message-block");
@@ -44,14 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sender === "bot") {
             const avatar = document.createElement("div");
             avatar.classList.add("message-avatar", "bot-avatar");
-            avatar.textContent = "CV"; // Iniciais da Clínica Vértice
+            avatar.textContent = "CV";
             messageBlock.appendChild(avatar);
         }
 
         const contentWrapper = document.createElement("div");
         contentWrapper.classList.add("message-content-wrapper");
 
-        // Adiciona o nome do remetente
         const senderName = document.createElement("div");
         senderName.classList.add("message-sender-name");
         senderName.textContent = sender === "user" ? "Você" : "Clínica Vértice";
@@ -89,6 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
             contentWrapper.appendChild(buttonsDiv);
         }
 
+        const timestamp = document.createElement("div");
+        timestamp.classList.add("message-timestamp");
+        timestamp.textContent = getCurrentTime();
+        contentWrapper.appendChild(timestamp);
+
         messageBlock.appendChild(contentWrapper);
         return messageBlock;
     }
@@ -112,9 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!response.ok) {
                 let errorData = { message: "Erro desconhecido na resposta." };
-                try {
-                    errorData = await response.json();
-                } catch (e) { }
+                try { errorData = await response.json(); } catch (e) { }
                 const errorMessageDetail = errorData?.message || errorData?.reason || response.statusText;
                 throw new Error(`HTTP error! status: ${response.status} - ${errorMessageDetail}`);
             }
@@ -169,10 +193,46 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function initializeChat() {
-        appendMessage("Olá! Bem-vindo(a) ao assistente virtual da Clínica Vértice. Como posso ajudar?", "bot");
-        userInput.focus();
-        sendMessageToRasaAPI('/session_start');
+    function updateSupportStatus() {
+        const statusDot = document.getElementById('support-status-dot');
+        const statusText = document.getElementById('support-status-text');
+        if (!statusDot || !statusText) return;
+
+        const now = new Date();
+        const day = now.getDay(); 
+        const hour = now.getHours();
+
+        const isOnline = (day >= 1 && day <= 5 && hour >= 8 && hour < 18);
+
+        if (isOnline) {
+            statusDot.classList.remove('offline');
+            statusDot.classList.add('online');
+            statusText.textContent = 'Disponível agora';
+        } else {
+            statusDot.classList.remove('online');
+            statusDot.classList.add('offline');
+            statusText.textContent = 'Fora do horário';
+        }
     }
+
+    window.handleQuickAction = function(message) {
+        event.preventDefault(); 
+        appendMessage(message, "user");
+        sendMessageToRasaAPI(message);
+        userInput.focus();
+    }
+
+    function initializeChat() {
+        appendMessage("Olá! Bem-vindo(a) ao assistente virtual da Clínica Vértice. Como posso ajudar?", "bot", null, [
+            { title: "Marcar Consulta", payload: "/informar_agendamento" },
+            { title: "Ver Resultados", payload: "/informar_resultados" }
+        ]);
+        userInput.focus();
+
+        updateSupportStatus(); 
+
+        setInterval(updateSupportStatus, 60000); 
+    }
+
     initializeChat();
 });
