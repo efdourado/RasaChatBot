@@ -1,6 +1,9 @@
-# Chatbot
+# Chatbot da Clinica Vértice
 
-Capaz de realizar agendamentos, responder perguntas gerais sobre saúde e muito mais, graças à sua integração com um BD em tempo real e a API do Gemini.
+Este projeto apresenta um chatbot de atendimento para a Clínica Vértice, um nome que simboliza o ponto mais alto do tratamento e do bem-estar.
+
+A versão inicial era capaz de realizar agendamentos, responder perguntas gerais sobre saúde e muito mais, graças à sua integração com um BD em tempo real e a API do Gemini.
+A mais recente atualização expande a interação, trazendo uma interface mais humana, funcionalidades de atendimento direto e um design totalmente renovado, alinhado à identidade visual de uma clínica moderna e acolhedora.
 
 ---
 
@@ -23,6 +26,27 @@ Capaz de realizar agendamentos, responder perguntas gerais sobre saúde e muito 
       * O usuário é guiado desde a escolha da especialidade até a seleção do médico e do horário;
       * Coleta de dados do paciente (nome e email) e criação de um registro no BD, se necessário;
       * Confirmação final com todos os detalhes (médico, especialidade, data, hora) e o **ID do agendamento** salvo no banco.
+
+   * **✨ Nova Interface e Funcionalidades de Atendimento (Última Atualização):**
+   
+     **Novo Nome e Identidade Visual:**
+      
+      * O projeto foi renomeado para Clínica Vértice.
+      * O layout foi redesenhado com uma nova paleta de cores, transmitindo a seriedade e o acolhimento de uma clínica de saúde.
+      
+      **Status de Atendentes:**
+      
+      * A interface agora exibe o status em tempo real dos atendentes, informando ao usuário se há alguém disponível para atendimento imediato.
+      
+      **Perfil de Usuário e Atendimento Personalizado:**
+      
+      * Implementação de um perfil de usuário (ex: Ana Beatriz), humanizando a interação.
+      * Exibição de horários específicos em que o usuário pode falar diretamente com a atendente.
+      
+      **Acesso Rápido e Solicitação de Atendimento:**
+      
+      * Um botão de "Solicitar Atendimento" permite ao usuário entrar na fila ou iniciar uma conversa direta de forma prática.
+      * Menus de acesso rápido foram adicionados para guiar o usuário às principais funcionalidades sem depender apenas do chat.
 
 ---
 
@@ -70,6 +94,11 @@ docker: docker build -t chatbot . && docker run -p 5005:8080 -e PORT=8080 --rm c
 
 ---
 
+## Nova Interface da Clínica Vértice
+  * Nova tela Principal e Layout
+    ![alt text](image-8.png)
+
+---
 ## Roadmap
 
   * Cancelar ou alterar seus agendamentos.
