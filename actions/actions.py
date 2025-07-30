@@ -2,6 +2,7 @@ import logging
 import json
 import subprocess
 import os
+import fitz 
 from typing import Any, Text, Dict, List
 from datetime import datetime, timedelta
 
@@ -431,3 +432,42 @@ class ValidateFormularioAgendamento(FormValidationAction):
         else:
             dispatcher.utter_message(text=f"Desculpe, o(a) Dr(a). {doctor_name} não tem horários livres no dia {target_date.strftime('%d/%m/%Y')}. Por favor, escolha outra data.")
             return {"data_preferida": None, "horarios_disponiveis": []}
+
+class ActionLerPdfEResponder(Action):
+    def name(self) -> Text:
+        return "action_ler_pdf_e_responder"
+
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict) -> List[Dict]:
+        caminho_pdf = "data/material.pdf"  # ajuste para o caminho real do seu PDF
+
+        try:
+            with fitz.open(caminho_pdf) as doc:
+                texto = ""
+                for pagina in doc:
+                    texto += pagina.get_text()
+
+            pergunta_usuario = tracker.latest_message.get("text")
+
+            if not gemini_model:
+                dispatcher.utter_message(text="Desculpe, estou com problemas técnicos para processar sua pergunta.")
+                return []
+
+            prompt = f"""
+            Você é um assistente da Clínica Super Saudável. Responda à pergunta do usuário com base no conteúdo a seguir, retirado de um material PDF:
+
+            --- CONTEÚDO DO MATERIAL ---
+            {texto}
+            --- FIM DO MATERIAL ---
+
+            Pergunta: "{pergunta_usuario}"
+            Resposta:
+            """
+
+            resposta = gemini_model.generate_content(prompt)
+            dispatcher.utter_message(text=resposta.text)
+
+        except Exception as e:
+            logger.error(f"Erro ao processar o PDF: {e}")
+            dispatcher.utter_message(text="Desculpe, houve um erro ao acessar o material.")
+
+        return []
