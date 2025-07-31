@@ -1,11 +1,85 @@
-.venv/
-.rasa/
+# --- Virtual Environments ---
+# Python virtual environments
+venv/
+venv-new/
+/env/
+/virtual/
+/venv/
+.venv
 
+# --- Python ---
+# Compiled Python files and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# --- Rasa ---
+# Trained models
+models/*.tar.gz
+
+# Log files
+*.log
+logs/
+
+# Rasa-specific cache and temporary files
+.rasa/
+results/
+
+# --- Node.js ---
+# Node dependency directory
 node_modules/
 
+# NPM debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- IDE & Editor Config ---
+# JetBrains (PyCharm, WebStorm, etc.)
+.idea/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# --- Operating System Files ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# --- General ---
+# Environment variables file
 .env
+.env.*
+!.env.example
 
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
 
-models/*.tar.gz
-dist/
-prisma/dev.db
+# Test output
+/htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/

@@ -699,7 +699,7 @@ nlu:
     - Marcar uma consulta de [oftalmologia](especialidade) para [daqui a 15 dias](data_preferida)
     - Tem [urologista](especialidade) para [terça que vem de manhã](data_preferida)?
 
-  - intent: perguntar_material_pdf
+- intent: perguntar_material_pdf
   examples: |
     - O que diz o material?
     - Qual é a política da clínica?

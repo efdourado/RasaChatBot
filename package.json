@@ -1,7 +1,7 @@
 {
-  "name": "sup",
+  "name": "rasachatbot",
   "version": "1.0.0",
-  "description": "Chatbot de Agendamento da Clínica Super Saudável",
+  "description": "Chatbot de Agendamento da Clínica Vértice",
   "main": "dist/service.js",
   "scripts": {
     "dev": "ts-node src/service.ts",
@@ -26,5 +26,8 @@
     "dotenv-cli": "^8.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed": "ts-node src/seed.ts"
   }
 }

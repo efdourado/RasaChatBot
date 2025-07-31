@@ -12,6 +12,8 @@ from rasa_sdk.events import SlotSet, AllSlotsReset, FollowupAction, ActiveLoop
 from rasa_sdk.types import DomainDict
 
 import google.generativeai as genai
+print(f"DEBUG: Loaded google.generativeai from: {genai.__file__}") 
+
 from dotenv import load_dotenv
 
 import re

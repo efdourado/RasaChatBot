@@ -53,25 +53,44 @@ A mais recente atualização expande a interação, trazendo uma interface mais 
 ## Run
 
 ```.env
-    GEMINI_API_KEY=
-    DATABASE_API_URL=
-    DATABASE_URL=
-    ACTION_ENDPOINT_URL=
+GEMINI_API_KEY=
+DATABASE_URL=
 ```
 
-Terminais (recomendação: source .venv/bin/activate && deactivate (criação de um ambiente virtual)):
+sudo apt update
 
-1. rasa train && npm run dev
+sudo apt install python3.8 python3.8-venv
 
-2. npm run rasa:actions
+source ./venv/bin/activate
 
-3. npm run rasa:server
+pip install rasa
 
-4. npx prisma studio (opcional)
+pip install -r requirements.txt
 
-5. Abrir o 'frontend/index.html` em seu navegador.
+rasa train
 
-docker: docker build -t chatbot . && docker run -p 5005:8080 -e PORT=8080 --rm chatbot
+---
+
+npm install
+
+npx prisma migrate dev
+
+npx prisma db seed
+
+npm run build
+
+- npm start
+
+---
+
+- rasa run actions
+- npm run rasa:server
+
+---
+
+- npx prisma studio
+
+deactivate
 
 ---
 
