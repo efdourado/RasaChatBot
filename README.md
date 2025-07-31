@@ -97,25 +97,25 @@ deactivate
 ## Demo
 
   * Info
-![alt text](image-1.png)
+![alt text](public/image-1.png)
 
   * Conversa (em 3 prints)
-![alt text](image-2.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
+![alt text](public/image-2.png)
+![alt text](public/image-3.png)
+![alt text](public/image-4.png)
 
   * Resultado no BD (Criação do Paciente +Consulta)
-![alt text](image-5.png)
-![alt text](image-6.png)
+![alt text](public/image-5.png)
+![alt text](public/image-6.png)
 
   * Banco e bot com horários atualizados (não mostra novamente o horário das 9h na segunda)
-![alt text](image-7.png)
+![alt text](public/image-7.png)
 
 ---
 
 ## Nova Interface da Clínica Vértice
   * Nova tela Principal e Layout
-    ![alt text](image-8.png)
+    ![alt text](public/image-8.png)
 
 ---
 ## Roadmap
